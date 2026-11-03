@@ -1,5 +1,5 @@
 // Сервер бюджета: вход по логину и паролю, хранение данных в Netlify Blobs.
-// Маршруты: /api/status, /api/register, /api/login, /api/me, /api/data, /api/password, /api/admin/*
+// Маршруты: /api/status, /api/register, /api/login, /api/me, /api/data, /api/english, /api/password, /api/admin/*
 import { getStore } from "@netlify/blobs";
 import crypto from "node:crypto";
 
@@ -7,6 +7,7 @@ const LOGIN_RE = /^[a-z0-9._-]{3,32}$/;
 const TOKEN_DAYS = 180;
 const MAX_FAILS = 10, LOCK_MS = 15 * 60 * 1000;
 const MAX_DATA = 4_000_000;
+const MAX_ENGLISH = 1_000_000;
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -129,6 +130,22 @@ export default async (req) => {
       return json({ rev: d.rev });
     }
 
+    // Прогресс тренажёра английского (/english/): отдельная запись на каждый аккаунт.
+    if (path === "english" && m === "GET") {
+      const d = await st.get("english/" + me.login, { type: "json" });
+      return json(d || { data: null, rev: 0 });
+    }
+    if (path === "english" && m === "PUT") {
+      const cur = await st.get("english/" + me.login, { type: "json" });
+      const rev = cur?.rev || 0;
+      if (body.rev !== rev) return fail(409, "conflict", "Прогресс изменился на другом устройстве.");
+      if (!body.data || typeof body.data !== "object" || Array.isArray(body.data)) return fail(400, "invalid", "Неверные данные.");
+      const d = { data: body.data, rev: rev + 1, updated: Date.now() };
+      if (JSON.stringify(d).length > MAX_ENGLISH) return fail(413, "too_big", "Слишком много данных.");
+      await st.setJSON("english/" + me.login, d);
+      return json({ rev: d.rev });
+    }
+
     if (path === "password" && m === "POST") {
       if (!checkPw(body.old, me)) return fail(403, "wrong_password", "Текущий пароль неверный.");
       const bad = validNew(me.login, body.password);
@@ -174,6 +191,7 @@ export default async (req) => {
         if (login === me.login) return fail(400, "self", "Свой аккаунт удалить нельзя.");
         await st.delete("users/" + login);
         await st.delete("data/" + login);
+        await st.delete("english/" + login);
         return json({ ok: true });
       }
     }

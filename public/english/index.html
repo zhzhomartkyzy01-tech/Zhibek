@@ -229,6 +229,12 @@ mark{background:var(--accent-soft);color:inherit;border-radius:4px;padding:0 2px
 .sp-btns .no{color:var(--bad)} .sp-btns .yes{color:var(--ok)}
 .combo{text-align:center;color:var(--fire);font-weight:700;min-height:24px}
 /* misc */
+.auth{text-align:left;display:flex;flex-direction:column;gap:12px;margin-top:18px}
+.auth label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:14px}
+.auth .tinput{font-size:17px;padding:12px 14px}
+.auth .err{color:var(--bad);font-size:14px;min-height:1px}
+.sync{font-size:13px;margin-left:2px}
+.sync[data-s="wait"]{opacity:.45}
 dialog{border:0;border-radius:20px;padding:22px;max-width:min(520px,calc(100vw - 32px));background:var(--surface);color:var(--ink)}
 dialog::backdrop{background:rgba(10,8,25,.5)}
 dialog h2{font-size:18px;margin-bottom:10px}
@@ -240,7 +246,7 @@ dialog .ex{background:var(--sunk);border-radius:10px;padding:10px 12px;margin:8p
 .confetti i{position:absolute;top:-20px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
 @media (prefers-reduced-motion:reduce){.confetti{display:none}*{animation:none!important;transition:none!important}}
-@media (max-width:420px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.qw{font-size:23px}.intro .en{font-size:30px}.ring{width:80px;height:80px}}
+@media (max-width:420px){.lvchip{display:none}.chip{padding:4px 8px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.qw{font-size:23px}.intro .en{font-size:30px}.ring{width:80px;height:80px}}
 </style>
 </head>
 <body>
@@ -261,7 +267,7 @@ dialog .ex{background:var(--sunk);border-radius:10px;padding:10px 12px;margin:8p
 "use strict";
 /* ============ КОНТЕНТ ============ */
 const UNITS=[
-{emoji:'👋',title:'Знакомство',w:[
+{id:'greet',emoji:'👋',title:'Знакомство',w:[
 ['hello','привет / здравствуйте','Hello! How are you?','Привет! Как дела?'],
 ['goodbye','до свидания / пока','Goodbye, see you soon!','До свидания, до скорой встречи!'],
 ['please','пожалуйста','Tea, please.','Чай, пожалуйста.'],
@@ -276,7 +282,21 @@ s:[['Hello, my name is Anna','Привет, меня зовут Анна'],['Nic
 tip:['Глагол to be — «быть»',`<p>В русском мы говорим «Я студент», а в английском обязательно нужен глагол <b>to be</b>:</p>
 <table><tr><td>I <b>am</b></td><td>я</td></tr><tr><td>you / we / they <b>are</b></td><td>ты, вы, мы, они</td></tr><tr><td>he / she / it <b>is</b></td><td>он, она, оно</td></tr></table>
 <div class="ex">I <b>am</b> a student. — Я студент.<br>She <b>is</b> my friend. — Она моя подруга.</div><p>Коротко: I'm, you're, he's, she's.</p>`]},
-{emoji:'👨‍👩‍👧',title:'Семья',w:[
+{id:'numbers',emoji:'🔢',title:'Числа и цвета',w:[
+['red','красный','Her dress is red.','Её платье красное.'],
+['blue','синий / голубой','The sky is blue.','Небо голубое.'],
+['green','зелёный','I like green tea.','Я люблю зелёный чай.'],
+['yellow','жёлтый','The taxi is yellow.','Такси жёлтое.'],
+['black','чёрный','He has a black cat.','У него чёрная кошка.'],
+['white','белый','Snow is white.','Снег белый.'],
+['ten','десять','I have ten minutes.','У меня десять минут.'],
+['twenty','двадцать','She is twenty years old.','Ей двадцать лет.'],
+['hundred','сто','It costs one hundred dollars.','Это стоит сто долларов.'],
+['first','первый','This is my first lesson.','Это мой первый урок.']],
+s:[['My favourite colour is blue','Мой любимый цвет — синий'],['I am twenty five years old','Мне двадцать пять лет'],['What colour is your car','Какого цвета твоя машина?'],['There are seven days in a week','В неделе семь дней']],
+tip:['Числа и возраст',`<table><tr><td>13–19</td><td>+<b>teen</b>: thir<b>teen</b>, fif<b>teen</b></td></tr><tr><td>20–90</td><td>+<b>ty</b>: twen<b>ty</b>, thir<b>ty</b>, fif<b>ty</b></td></tr><tr><td>21</td><td>twenty-one</td></tr><tr><td>1-й, 2-й, 3-й</td><td><b>first, second, third</b>, дальше +th: fourth, fifth</td></tr></table>
+<p>Возраст говорят с глаголом <b>to be</b>, а не «have»:</p><div class="ex">I <b>am</b> 25 (years old). — Мне 25 лет.</div>`]},
+{id:'family',emoji:'👨‍👩‍👧',title:'Семья',w:[
 ['mother','мама / мать','My mother is a doctor.','Моя мама — врач.'],
 ['father','папа / отец','My father works a lot.','Мой папа много работает.'],
 ['sister','сестра','I have a little sister.','У меня есть младшая сестра.'],
@@ -290,7 +310,7 @@ tip:['Глагол to be — «быть»',`<p>В русском мы говор
 s:[['This is my family','Это моя семья'],['I have two brothers','У меня два брата'],['Her name is Maria','Её зовут Мария'],['My father is a teacher','Мой папа учитель']],
 tip:['Чей? my, your, his, her',`<table><tr><td><b>my</b></td><td>мой</td></tr><tr><td><b>your</b></td><td>твой, ваш</td></tr><tr><td><b>his</b></td><td>его</td></tr><tr><td><b>her</b></td><td>её</td></tr><tr><td><b>our</b></td><td>наш</td></tr><tr><td><b>their</b></td><td>их</td></tr></table>
 <p>«У меня есть» по-английски — <b>I have</b>, у него/неё — <b>he/she has</b>.</p><div class="ex">I <b>have</b> a sister. <b>Her</b> name is Kate.<br>У меня есть сестра. Её зовут Кейт.</div>`]},
-{emoji:'⏰',title:'Время',w:[
+{id:'time',emoji:'⏰',title:'Время',w:[
 ['day','день','Have a nice day!','Хорошего дня!'],
 ['week','неделя','See you next week.','Увидимся на следующей неделе.'],
 ['month','месяц','My birthday is next month.','Мой день рождения в следующем месяце.'],
@@ -304,7 +324,7 @@ tip:['Чей? my, your, his, her',`<table><tr><td><b>my</b></td><td>мой</td><
 s:[['What time is it','Который час?'],['I work in the morning','Я работаю утром'],['See you on Monday','Увидимся в понедельник'],['Today is a good day','Сегодня хороший день']],
 tip:['in, on, at со временем',`<table><tr><td><b>in</b></td><td>in the morning, in May, in 2026</td></tr><tr><td><b>on</b></td><td>on Monday, on my birthday</td></tr><tr><td><b>at</b></td><td>at 7 o'clock, at night, at the weekend</td></tr></table>
 <p>Подсказка: <b>at</b> — точка (время на часах), <b>on</b> — день, <b>in</b> — что-то длинное (месяц, год, часть дня).</p>`]},
-{emoji:'🍎',title:'Еда',w:[
+{id:'food',emoji:'🍎',title:'Еда',w:[
 ['bread','хлеб','I buy bread every day.','Я покупаю хлеб каждый день.'],
 ['water','вода','Can I have some water?','Можно мне воды?'],
 ['milk','молоко','The cat likes milk.','Кошка любит молоко.'],
@@ -318,7 +338,7 @@ tip:['in, on, at со временем',`<table><tr><td><b>in</b></td><td>in the
 s:[['I like apples','Я люблю яблоки'],['Can I have the menu','Можно меню?'],['I would like some tea','Я бы хотел чаю'],['We eat fish on Friday','Мы едим рыбу в пятницу']],
 tip:['a / an и some',`<p>Перед одним предметом ставится <b>a</b>, а если слово начинается с гласного звука — <b>an</b>:</p><div class="ex"><b>a</b> banana, <b>a</b> cup — <b>an</b> apple, <b>an</b> egg</div>
 <p>Вещества не считают штуками: water, milk, bread, tea. С ними нет a/an, зато можно сказать <b>some</b> (немного):</p><div class="ex">Can I have <b>some</b> water? — Можно мне воды?</div>`]},
-{emoji:'🏠',title:'Дом',w:[
+{id:'home',emoji:'🏠',title:'Дом',w:[
 ['house','дом','Our house is small.','Наш дом маленький.'],
 ['room','комната','My room is clean.','Моя комната чистая.'],
 ['kitchen','кухня','Mom is in the kitchen.','Мама на кухне.'],
@@ -332,7 +352,7 @@ tip:['a / an и some',`<p>Перед одним предметом ставит�
 s:[['There is a cat in the kitchen','На кухне есть кошка'],['There are two rooms','Здесь две комнаты'],['The book is on the table','Книга на столе'],['My house is near the park','Мой дом рядом с парком']],
 tip:['there is / there are — «есть, находится»',`<p>Когда говорим, что где-то что-то есть:</p><div class="ex"><b>There is</b> a sofa in the room. — В комнате есть диван.<br><b>There are</b> two chairs. — Там два стула.</div>
 <p>Где именно: <b>in</b> — в, <b>on</b> — на, <b>under</b> — под, <b>near</b> — рядом.</p>`]},
-{emoji:'☀️',title:'Мой день',w:[
+{id:'day',emoji:'☀️',title:'Мой день',w:[
 ['wake up','просыпаться','I wake up at seven.','Я просыпаюсь в семь.'],
 ['eat','есть, кушать','We eat at home.','Мы едим дома.'],
 ['drink','пить','I drink a lot of water.','Я пью много воды.'],
@@ -346,7 +366,7 @@ tip:['there is / there are — «есть, находится»',`<p>Когда 
 s:[['He goes to work by bus','Он ездит на работу на автобусе'],['I read every evening','Я читаю каждый вечер'],['She does not drink coffee','Она не пьёт кофе'],['Do you cook at home','Ты готовишь дома?']],
 tip:['Present Simple — то, что бывает регулярно',`<div class="ex">I <b>work</b> — я работаю<br>He / she <b>works</b> — он/она работает (+s!)</div>
 <p>Отрицание: I <b>don't</b> work, she <b>doesn't</b> work.<br>Вопрос: <b>Do</b> you work? <b>Does</b> she work?</p><p>Слова-подсказки: every day, usually, often, always.</p>`]},
-{emoji:'🏙️',title:'Город',w:[
+{id:'city',emoji:'🏙️',title:'Город',w:[
 ['street','улица','I live on this street.','Я живу на этой улице.'],
 ['shop','магазин','The shop opens at nine.','Магазин открывается в девять.'],
 ['bank','банк','Is there a bank near here?','Здесь рядом есть банк?'],
@@ -360,7 +380,7 @@ tip:['Present Simple — то, что бывает регулярно',`<div cla
 s:[['Where is the bank','Где банк?'],['Turn left at the park','Поверните налево у парка'],['It is next to the school','Это рядом со школой'],['Go straight on','Идите прямо']],
 tip:['Как спросить дорогу',`<div class="ex">Excuse me, <b>where is</b> the station?<br><b>How can I get to</b> the park?</div>
 <table><tr><td>turn left / right</td><td>поверните налево / направо</td></tr><tr><td>go straight on</td><td>идите прямо</td></tr><tr><td>next to</td><td>рядом с</td></tr><tr><td>opposite</td><td>напротив</td></tr></table>`]},
-{emoji:'🛍️',title:'Покупки',w:[
+{id:'shop',emoji:'🛍️',title:'Покупки',w:[
 ['money','деньги','I have no money.','У меня нет денег.'],
 ['price','цена','What is the price?','Какая цена?'],
 ['cheap','дешёвый','This bag is cheap.','Эта сумка дешёвая.'],
@@ -374,7 +394,35 @@ tip:['Как спросить дорогу',`<div class="ex">Excuse me, <b>where
 s:[['How much is it','Сколько это стоит?'],['Can I try it on','Можно примерить?'],['I will take it','Я возьму это'],['Do you have a smaller size','У вас есть размер поменьше?']],
 tip:['How much или how many?',`<p><b>How much</b> — сколько (о цене и о том, что не считают штуками):</p><div class="ex">How much <b>is it</b>? — Сколько стоит?<br>How much water? — Сколько воды?</div>
 <p><b>How many</b> — сколько штук:</p><div class="ex">How many apples? — Сколько яблок?</div>`]},
-{emoji:'🎨',title:'Какой? Описание',w:[
+{id:'clothes',emoji:'👕',title:'Одежда',w:[
+['shirt','рубашка','This shirt is too big.','Эта рубашка слишком большая.'],
+['dress','платье','What a nice dress!','Какое красивое платье!'],
+['jacket','куртка / пиджак','Take your jacket, it is cold.','Возьми куртку, холодно.'],
+['trousers','брюки','These trousers are new.','Эти брюки новые.'],
+['hat','шапка / шляпа','He always wears a hat.','Он всегда носит шляпу.'],
+['coat','пальто','My coat is in the car.','Моё пальто в машине.'],
+['skirt','юбка','She likes long skirts.','Она любит длинные юбки.'],
+['socks','носки','I need warm socks.','Мне нужны тёплые носки.'],
+['wear','носить (одежду)','I usually wear jeans.','Обычно я ношу джинсы.'],
+['put on','надевать','Put on your coat.','Надень пальто.']],
+s:[['I am wearing a blue shirt','На мне синяя рубашка'],['She is putting on her coat','Она надевает пальто'],['They are waiting for the bus','Они ждут автобус'],['What are you doing now','Что ты сейчас делаешь?']],
+tip:['Present Continuous — то, что происходит сейчас',`<p><b>am / is / are</b> + глагол с <b>-ing</b>:</p><div class="ex">I <b>am wearing</b> a jacket. — На мне (сейчас) куртка.<br>She <b>is reading</b>. — Она читает (сейчас).</div>
+<p>Сравните: I <b>wear</b> jeans every day (обычно) — I <b>am wearing</b> a dress today (сегодня, сейчас).</p><p>Слова-подсказки: now, right now, at the moment, look!</p>`]},
+{id:'weather',emoji:'🌦️',title:'Погода и сезоны',w:[
+['weather','погода','The weather is nice today.','Сегодня хорошая погода.'],
+['sun','солнце','The sun is shining.','Светит солнце.'],
+['rain','дождь','I like walking in the rain.','Я люблю гулять под дождём.'],
+['snow','снег','The children play in the snow.','Дети играют в снегу.'],
+['wind','ветер','The wind is very strong.','Ветер очень сильный.'],
+['warm','тёплый','It is warm outside.','На улице тепло.'],
+['spring','весна','Flowers grow in spring.','Весной растут цветы.'],
+['summer','лето','We go to the sea every summer.','Каждое лето мы ездим на море.'],
+['autumn','осень','Autumn is my favourite season.','Осень — моё любимое время года.'],
+['winter','зима','Winter in Almaty is cold.','Зима в Алматы холодная.']],
+s:[['It is raining today','Сегодня идёт дождь'],['It is very cold outside','На улице очень холодно'],['What is the weather like','Какая погода?'],['It is sunny and warm','Солнечно и тепло']],
+tip:['«Холодно», «идёт дождь» — с It',`<p>В русском можно сказать просто «Холодно». В английском у предложения всегда есть подлежащее, поэтому добавляем <b>It</b>:</p>
+<div class="ex"><b>It is</b> cold. — Холодно.<br><b>It is</b> raining. — Идёт дождь.<br><b>It is</b> sunny. — Солнечно.</div><p>Времена года — с <b>in</b>: in winter, in summer.</p>`]},
+{id:'describe',emoji:'🎨',title:'Какой? Описание',w:[
 ['big','большой','It is a big city.','Это большой город.'],
 ['small','маленький','I have a small dog.','У меня маленькая собака.'],
 ['new','новый','Is this a new phone?','Это новый телефон?'],
@@ -388,7 +436,36 @@ tip:['How much или how many?',`<p><b>How much</b> — сколько (о це
 s:[['My city is bigger than yours','Мой город больше твоего'],['This is the best day','Это лучший день'],['Winter is colder than autumn','Зима холоднее осени'],['She is very happy today','Она сегодня очень счастлива']],
 tip:['Сравнение: больше, самый большой',`<table><tr><td>big</td><td>bigg<b>er</b></td><td>the bigg<b>est</b></td></tr><tr><td>cold</td><td>cold<b>er</b></td><td>the cold<b>est</b></td></tr><tr><td>beautiful</td><td><b>more</b> beautiful</td><td><b>the most</b> beautiful</td></tr><tr><td>good</td><td>better</td><td>the best</td></tr></table>
 <div class="ex">My bag is bigger <b>than</b> yours. — Моя сумка больше твоей.</div>`]},
-{emoji:'✈️',title:'Путешествия',w:[
+{id:'hobby',emoji:'⚽',title:'Хобби и спорт',w:[
+['hobby','хобби / увлечение','My hobby is photography.','Моё хобби — фотография.'],
+['music','музыка','I listen to music every day.','Я слушаю музыку каждый день.'],
+['film','фильм','Let\'s watch a film tonight.','Давай посмотрим фильм вечером.'],
+['game','игра','This game is very popular.','Эта игра очень популярна.'],
+['football','футбол','Boys play football in the yard.','Мальчики играют в футбол во дворе.'],
+['swim','плавать','Can you swim?','Ты умеешь плавать?'],
+['dance','танцевать','She dances beautifully.','Она красиво танцует.'],
+['sing','петь','He sings in the shower.','Он поёт в душе.'],
+['draw','рисовать','My daughter likes to draw.','Моя дочь любит рисовать.'],
+['travel','путешествовать','I want to travel the world.','Я хочу путешествовать по миру.']],
+s:[['I like playing football','Мне нравится играть в футбол'],['She loves dancing','Она обожает танцевать'],['What do you do in your free time','Что ты делаешь в свободное время?'],['I often go to the cinema','Я часто хожу в кино']],
+tip:['Как часто? always, often, never',`<p>После <b>like / love / hate</b> глагол часто идёт с <b>-ing</b>: I like <b>swimming</b>.</p>
+<table><tr><td><b>always</b></td><td>всегда</td></tr><tr><td><b>usually</b></td><td>обычно</td></tr><tr><td><b>often</b></td><td>часто</td></tr><tr><td><b>sometimes</b></td><td>иногда</td></tr><tr><td><b>never</b></td><td>никогда</td></tr></table>
+<p>Эти слова стоят <b>перед</b> глаголом: I <b>often</b> go… Но после am/is/are: She <b>is always</b> late.</p>`]},
+{id:'cafe',emoji:'☕',title:'В кафе',w:[
+['menu','меню','Can I see the menu, please?','Можно посмотреть меню?'],
+['waiter','официант','The waiter is very polite.','Официант очень вежливый.'],
+['bill','счёт','Can we have the bill, please?','Принесите, пожалуйста, счёт.'],
+['order','заказывать','Are you ready to order?','Вы готовы сделать заказ?'],
+['dessert','десерт','Let\'s have a dessert.','Давай возьмём десерт.'],
+['soup','суп','The soup is too hot.','Суп слишком горячий.'],
+['salad','салат','I\'ll have a green salad.','Мне зелёный салат.'],
+['juice','сок','A glass of orange juice, please.','Стакан апельсинового сока, пожалуйста.'],
+['delicious','очень вкусный','The cake is delicious!','Торт очень вкусный!'],
+['breakfast','завтрак','Breakfast is at eight.','Завтрак в восемь.']],
+s:[['Could I have a glass of water','Можно мне стакан воды?'],['I would like to order','Я бы хотел сделать заказ'],['Could you bring the bill','Не могли бы вы принести счёт?'],['Everything was delicious','Всё было очень вкусно']],
+tip:['Вежливые просьбы',`<p>«I want…» звучит резковато. В кафе и магазине лучше так:</p>
+<div class="ex"><b>Could I have</b> a coffee, please? — Можно мне кофе?<br><b>I'd like</b> (= I would like) a salad. — Я бы хотел салат.<br><b>Could you</b> bring the bill, please? — Не могли бы вы принести счёт?</div><p>И не забывайте <b>please</b> и <b>thank you</b> 🙂</p>`]},
+{id:'travel',emoji:'✈️',title:'Путешествия',w:[
 ['ticket','билет','I bought a ticket to London.','Я купил билет в Лондон.'],
 ['airport','аэропорт','We went to the airport by taxi.','Мы поехали в аэропорт на такси.'],
 ['plane','самолёт','The plane was late.','Самолёт опоздал.'],
@@ -403,7 +480,7 @@ s:[['I went to Italy last year','В прошлом году я ездил в И�
 tip:['Past Simple — прошедшее время',`<p>Правильные глаголы получают <b>-ed</b>: work → work<b>ed</b>, visit → visit<b>ed</b>.</p>
 <p>Неправильные просто запоминаем:</p><table><tr><td>go → <b>went</b></td><td>see → <b>saw</b></td></tr><tr><td>be → <b>was / were</b></td><td>buy → <b>bought</b></td></tr></table>
 <p>Вопрос и отрицание — с <b>did</b>: Did you go? — I didn't go.</p>`]},
-{emoji:'💼',title:'Работа и учёба',w:[
+{id:'work',emoji:'💼',title:'Работа и учёба',w:[
 ['job','работа (должность)','I love my job.','Я люблю свою работу.'],
 ['office','офис','The office is on the fifth floor.','Офис на пятом этаже.'],
 ['boss','начальник','My boss is very strict.','Мой начальник очень строгий.'],
@@ -417,7 +494,7 @@ tip:['Past Simple — прошедшее время',`<p>Правильные г
 s:[['I will finish it tomorrow','Я закончу это завтра'],['We are going to have a meeting','У нас будет совещание'],['I will call you later','Я позвоню тебе позже'],['She is going to study English','Она собирается изучать английский']],
 tip:['Будущее: will и going to',`<p><b>will</b> — решение прямо сейчас или обещание:</p><div class="ex">I <b>will</b> help you. — Я тебе помогу.</div>
 <p><b>going to</b> — план, который уже есть:</p><div class="ex">I <b>am going to</b> learn English. — Я собираюсь учить английский.</div>`]},
-{emoji:'❤️',title:'Здоровье',w:[
+{id:'health',emoji:'❤️',title:'Здоровье',w:[
 ['head','голова','My head hurts.','У меня болит голова.'],
 ['hand','рука (кисть)','Wash your hands.','Помой руки.'],
 ['eye','глаз','She has blue eyes.','У неё голубые глаза.'],
@@ -431,6 +508,50 @@ tip:['Будущее: will и going to',`<p><b>will</b> — решение пр�
 s:[['You should drink more water','Тебе стоит пить больше воды'],['I can\'t sleep at night','Я не могу спать по ночам'],['Can you help me','Можешь мне помочь?'],['You should rest','Тебе нужно отдохнуть']],
 tip:['can и should',`<p><b>can</b> — могу, умею: I <b>can</b> swim. — Я умею плавать.<br>Не могу: I <b>can't</b>.</p>
 <p><b>should</b> — совет, «стоит»: You <b>should</b> rest. — Тебе стоит отдохнуть.</p><p>После can и should глагол идёт <b>без to</b>.</p>`]},
+{id:'feelings',emoji:'😊',title:'Чувства и характер',w:[
+['angry','злой / сердитый','Why are you angry with me?','Почему ты на меня злишься?'],
+['afraid','испуганный (бояться)','I am afraid of spiders.','Я боюсь пауков.'],
+['boring','скучный','This film is boring.','Этот фильм скучный.'],
+['interesting','интересный','What an interesting book!','Какая интересная книга!'],
+['kind','добрый','She is very kind to animals.','Она очень добра к животным.'],
+['funny','смешной','My brother is so funny.','Мой брат такой смешной.'],
+['smart','умный','Dolphins are smart animals.','Дельфины — умные животные.'],
+['lazy','ленивый','Don\'t be lazy, get up!','Не ленись, вставай!'],
+['friendly','дружелюбный','People here are very friendly.','Люди здесь очень дружелюбные.'],
+['worried','обеспокоенный','I am worried about the exam.','Я волнуюсь из-за экзамена.']],
+s:[['The film was boring','Фильм был скучным'],['I was bored at home','Мне было скучно дома'],['This book is interesting','Эта книга интересная'],['I am interested in history','Мне интересна история']],
+tip:['bored или boring?',`<p><b>-ing</b> — какой предмет или человек, <b>-ed</b> — что чувствую я:</p>
+<table><tr><td>The film is <b>boring</b>.</td><td>Фильм скучный.</td></tr><tr><td>I am <b>bored</b>.</td><td>Мне скучно.</td></tr><tr><td>The book is <b>interesting</b>.</td><td>Книга интересная.</td></tr><tr><td>I am <b>interested</b> in it.</td><td>Мне это интересно.</td></tr></table>
+<p>Частая ошибка: «I am boring» значит «Я — скучный человек» 😄</p>`]},
+{id:'nature',emoji:'🐾',title:'Природа и животные',w:[
+['dog','собака','Our dog loves walks.','Наша собака обожает прогулки.'],
+['cat','кошка / кот','The cat is sleeping on the sofa.','Кошка спит на диване.'],
+['bird','птица','A bird is singing outside.','За окном поёт птица.'],
+['horse','лошадь','Kazakhstan is famous for its horses.','Казахстан славится своими лошадьми.'],
+['tree','дерево','There is an old tree in our yard.','В нашем дворе растёт старое дерево.'],
+['flower','цветок','He gave me a flower.','Он подарил мне цветок.'],
+['river','река','We swam in the river.','Мы плавали в реке.'],
+['forest','лес','Don\'t get lost in the forest.','Не заблудись в лесу.'],
+['lake','озеро','The lake is very clean.','Озеро очень чистое.'],
+['animal','животное','What is your favourite animal?','Какое твоё любимое животное?']],
+s:[['I have never been to Paris','Я никогда не был в Париже'],['Have you ever seen the sea','Ты когда-нибудь видел море?'],['We have just fed the dog','Мы только что покормили собаку'],['She has lived here for years','Она живёт здесь много лет']],
+tip:['Present Perfect — опыт и результат',`<p><b>have / has</b> + 3-я форма глагола (seen, been, done, eaten):</p>
+<div class="ex">I <b>have been</b> to Turkey. — Я бывал в Турции.<br><b>Have</b> you ever <b>seen</b> a whale? — Ты когда-нибудь видел кита?<br>I <b>have just eaten</b>. — Я только что поел.</div>
+<p>Слова-подсказки: <b>ever</b> (когда-нибудь), <b>never</b> (никогда), <b>just</b> (только что), <b>already</b> (уже).</p>`]},
+{id:'tech',emoji:'📱',title:'Телефон и интернет',w:[
+['phone','телефон','My phone is dead.','У меня сел телефон.'],
+['message','сообщение','I got your message.','Я получил твоё сообщение.'],
+['call','звонить','Call me in the evening.','Позвони мне вечером.'],
+['email','электронное письмо / почта','Check your email.','Проверь почту.'],
+['password','пароль','Don\'t tell anyone your password.','Никому не говори свой пароль.'],
+['computer','компьютер','My computer is very slow.','Мой компьютер очень медленный.'],
+['website','сайт','This website is useful.','Этот сайт полезный.'],
+['download','скачивать','Download the app for free.','Скачайте приложение бесплатно.'],
+['send','отправлять','Send me the photos, please.','Пришли мне фотографии, пожалуйста.'],
+['photo','фотография','Let\'s take a photo!','Давай сфотографируемся!']],
+s:[['I will send you a message','Я отправлю тебе сообщение'],['Can you call me back','Можешь мне перезвонить?'],['I have forgotten my password','Я забыл пароль'],['The internet is not working','Интернет не работает']],
+tip:['Фразовые глаголы',`<p>Глагол + маленькое слово = новое значение:</p>
+<table><tr><td><b>call back</b></td><td>перезвонить</td></tr><tr><td><b>turn on / off</b></td><td>включить / выключить</td></tr><tr><td><b>log in / out</b></td><td>войти / выйти</td></tr><tr><td><b>look for</b></td><td>искать</td></tr><tr><td><b>give up</b></td><td>сдаться — только не в английском! 💪</td></tr></table>`]},
 ];
 const QUOTES=[
 ['Every day is a new beginning.','Каждый день — новое начало.'],
@@ -480,9 +601,13 @@ const LPU=2; // уроков в теме
 
 /* ============ СОСТОЯНИЕ ============ */
 const KEY='english-progress-v1';
-const fresh=()=>({v:1,created:today(),onboarded:false,goal:15,reason:'self',startUnit:0,xp:0,days:{},streak:0,best:0,lastStreakDay:null,freezes:0,frozen:[],lessons:0,perfect:0,goalsMet:0,reviews:0,sprintBest:0,done:{},words:{},ach:{},sound:true,theme:'auto'});
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.v===1)return Object.assign(fresh(),s)}catch(e){}return fresh()}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+const fresh=()=>({v:1,created:today(),onboarded:false,goal:15,reason:'self',startUnit:0,xp:0,days:{},streak:0,best:0,lastStreakDay:null,freezes:0,frozen:[],lessons:0,perfect:0,goalsMet:0,reviews:0,sprintBest:0,done:{},words:{},ach:{},sound:true,theme:'auto',owner:null,upd:0,resetAt:0});
+// Старые ключи уроков «номер темы:часть» → «id темы:часть» (до добавления новых тем).
+const OLD_ORDER=['greet','family','time','food','home','day','city','shop','describe','travel','work','health'];
+function migrate(s){for(const k of Object.keys(s.done||{})){const m=/^(\d+):(\d)$/.exec(k);if(m){const id=OLD_ORDER[+m[1]];if(id&&!s.done[id+':'+m[2]])s.done[id+':'+m[2]]=s.done[k];delete s.done[k]}}return s}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.v===1)return migrate(Object.assign(fresh(),s))}catch(e){}return fresh()}
+function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+function save(){st.upd=Date.now();saveLocal();cloudDirty()}
 let st=load();
 let tab='learn';
 try{tab=sessionStorage.getItem('eng-tab')||'learn'}catch(e){}
@@ -540,13 +665,13 @@ const ACH=[
 function checkAch(){const n=[];ACH.forEach(a=>{if(!st.ach[a.id]&&a.f()){st.ach[a.id]=today();n.push(a)}});if(n.length)save();return n}
 
 /* ============ УРОКИ ============ */
-const lk=(ui,li)=>ui+':'+li;
+const lk=(ui,li)=>UNITS[ui].id+':'+li;
 const isDone=(ui,li)=>!!st.done[lk(ui,li)];
-function unlocked(ui,li){if(ui<st.startUnit)return true;const g=ui*LPU+li;if(g===0)return true;const p=g-1;return isDone(Math.floor(p/LPU),p%LPU)}
+function unlocked(ui,li){if(ui<st.startUnit||isDone(ui,li))return true;const g=ui*LPU+li;if(g===0)return true;const p=g-1;return isDone(Math.floor(p/LPU),p%LPU)}
 function nextLesson(){const order=[...UNITS.keys()].slice(st.startUnit).concat([...UNITS.keys()].slice(0,st.startUnit));for(const ui of order)for(let li=0;li<LPU;li++)if(!isDone(ui,li)&&unlocked(ui,li))return{ui,li};return null}
 const INT=[0,1,2,4,7,15,30];
 function dueWords(){const t=dnum(today());return Object.entries(st.words).filter(([id,s])=>BYID[id]&&dnum(s.due)<=t).sort((a,b)=>dnum(a[1].due)-dnum(b[1].due)).map(([id])=>BYID[id])}
-function srs(w,ok){const s=st.words[w.id];if(!s)return;if(ok){s.box=Math.min(s.box+1,6);s.due=kAdd(today(),INT[s.box])}else{s.box=1;s.due=kAdd(today(),1)}}
+function srs(w,ok){const s=st.words[w.id];if(!s)return;if(ok){s.box=Math.min(s.box+1,6);s.due=kAdd(today(),INT[s.box])}else{s.box=1;s.due=kAdd(today(),1)}s.t=Date.now()}
 function distractors(w,n){const key=x=>x.ru+'|'+disp(x);const used=new Set([key(w),w.ru,disp(w)]);const out=[];const cands=shuffle(UNITS[w.ui].words.filter(x=>x!==w)).concat(shuffle(ALL.filter(x=>x.ui!==w.ui)));for(const c of cands){if(out.length>=n)break;if(used.has(c.ru)||used.has(disp(c)))continue;used.add(c.ru);used.add(disp(c));out.push(c)}return out}
 const wordInfo=w=>`<div><b>${esc(disp(w))}</b> — ${esc(w.ru)}</div><div class="ex">${esc(w.ex)} — ${esc(w.exru)}</div>`;
 
@@ -658,7 +783,7 @@ function finish(){
     xp=15+(S.mistakes?0:5);stars=!S.mistakes?3:S.mistakes<=2?2:1;
     const k=lk(S.ui,S.li),prev=st.done[k];
     st.done[k]={stars:Math.max(stars,prev?prev.stars:0),at:today()};st.lessons++;if(!S.mistakes)st.perfect++;
-    S.ws.forEach(w=>{if(!st.words[w.id])st.words[w.id]={box:1,due:kAdd(today(),1),added:today()}});
+    S.ws.forEach(w=>{if(!st.words[w.id])st.words[w.id]={box:1,due:kAdd(today(),1),added:today(),t:Date.now()}});
     title=prev?'Урок повторён!':'Урок пройден!';emoji=S.mistakes?'🎉':'💎';
   }else{xp=5+S.firstOk;title='Повторение завершено!';emoji='🧠'}
   const ev=addXP(xp),ach=checkAch(),nl=nextLesson();
@@ -713,11 +838,11 @@ function endSprint(){
 function ring(v,goal){const r=36,c=2*Math.PI*r,p=Math.min(1,v/goal);return `<svg viewBox="0 0 92 92" class="ring${p>=1?' full':''}" role="img" aria-label="Сегодня ${v} из ${goal} XP"><circle cx="46" cy="46" r="${r}" class="bg"/><circle cx="46" cy="46" r="${r}" class="fg" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-p)}" transform="rotate(-90 46 46)"/><text x="46" y="47" text-anchor="middle">${p>=1?'✓':v}</text><text x="46" y="61" text-anchor="middle" class="s">${p>=1?'готово':'из '+goal+' XP'}</text></svg>`}
 function header(){
   const lv=lvl(st.xp),met=todayXP()>=st.goal;
-  return `<header class="top"><div class="brand"><img src="/english/icon.svg" alt="">English</div><div class="chips">
+  return `<header class="top"><div class="brand"><img src="/english/icon.svg" alt="">English<span class="sync" id="sync" ${syncAttr()}>${CL.on&&SYNC[CL.sync]?SYNC[CL.sync][0]:""}</span></div><div class="chips">
    <span class="chip ${st.streak?'fire':'off'}" title="Серия дней">🔥 ${st.streak}</span>
    ${st.freezes?`<span class="chip ice" title="Заморозки серии">❄️ ${st.freezes}</span>`:''}
    <span class="chip xp" title="Опыт за сегодня">⚡ ${todayXP()}/${st.goal}${met?' ✓':''}</span>
-   <span class="chip" title="Уровень">Ур. ${lv.n}</span></div></header>`;
+   <span class="chip lvchip" title="Уровень">Ур. ${lv.n}</span></div></header>`;
 }
 function learnTab(){
   const t=todayXP(),left=st.goal-t,nl=nextLesson(),q=QUOTES[dnum(today())%QUOTES.length],wd=ALL[(dnum(today())*7)%ALL.length];
@@ -777,7 +902,9 @@ function progressTab(){
    <div class="set"><span>Зачем учу</span><select id="sReason">${Object.entries(REASONS).map(([k,r])=>`<option value="${k}"${st.reason===k?' selected':''}>${r.e} ${r.t}</option>`).join('')}</select></div>
    <div class="set"><span>Звуки</span><select id="sSound"><option value="1"${st.sound?' selected':''}>Включены</option><option value="0"${st.sound?'':' selected'}>Выключены</option></select></div>
    <div class="set"><span>Оформление</span><select id="sTheme"><option value="auto">Как в системе</option><option value="light"${st.theme==='light'?' selected':''}>Светлое</option><option value="dark"${st.theme==='dark'?' selected':''}>Тёмное</option></select></div>
-   <div class="set"><span>Резервная копия<br><small class="muted">Прогресс хранится в этом браузере</small></span><div class="row"><button class="btn sm" id="bExport">Сохранить</button><button class="btn sm" id="bImport">Загрузить</button></div></div>
+   ${CL.on?`<div class="set"><span>Аккаунт: <b>${esc(CL.login)}</b><br><small class="muted">Прогресс сохраняется на всех ваших устройствах</small></span><button class="btn sm" id="bLogout">Выйти</button></div>`
+     :CL.server?`<div class="set"><span>Аккаунт<br><small class="muted">Сейчас прогресс хранится только на этом устройстве</small></span><button class="btn sm primary" id="bLogin">Войти</button></div>`:''}
+   <div class="set"><span>Резервная копия<br><small class="muted">${CL.on?'Файл с прогрессом — на всякий случай':'Прогресс хранится в этом браузере'}</small></span><div class="row"><button class="btn sm" id="bExport">Сохранить</button><button class="btn sm" id="bImport">Загрузить</button></div></div>
    <div class="set"><span>Начать заново</span><button class="btn sm danger" id="bReset">Сбросить прогресс</button></div></div>`;
   return html;
 }
@@ -786,7 +913,7 @@ function onboarding(step){
   const dots=`<div class="steps">${[0,1,2].map(i=>`<i class="${i<=step?'on':''}"></i>`).join('')}</div>`;
   const ch=(attr,items)=>`<div class="choices">${items.map(([v,e,t,d])=>`<button class="choice" data-${attr}="${v}"><span>${e}</span><div>${t}${d?`<small>${d}</small>`:''}</div></button>`).join('')}</div>`;
   if(step===0)app.innerHTML=`<div class="ob"><img src="/english/icon.svg" alt="" width="72" height="72">${dots}<h1>Английский каждый день</h1><p class="muted">5 минут в день, понятные уроки и видимый результат. Для начала — зачем вам английский?</p>${ch('reason',Object.entries(REASONS).map(([k,r])=>[k,r.e,r.t]))}</div>`;
-  if(step===1)app.innerHTML=`<div class="ob">${dots}<h1>Какой у вас уровень?</h1><p class="muted">Это просто точка старта — все темы останутся доступны.</p>${ch('lvl',[['0','🌱','С нуля','Начнём с приветствий и самых нужных слов'],['3','🌿','Знаю основы','Откроем первые 3 темы сразу'],['6','🌳','Уверенно читаю','Откроем первые 6 тем сразу']])}</div>`;
+  if(step===1)app.innerHTML=`<div class="ob">${dots}<h1>Какой у вас уровень?</h1><p class="muted">Это просто точка старта — все темы останутся доступны.</p>${ch('lvl',[['0','🌱','С нуля','Начнём с приветствий и самых нужных слов'],['4','🌿','Знаю основы','Откроем первые 4 темы сразу'],['8','🌳','Уверенно читаю','Откроем первые 8 тем сразу']])}</div>`;
   if(step===2)app.innerHTML=`<div class="ob">${dots}<h1>Сколько времени в день?</h1><p class="muted">Регулярность важнее объёма. Цель можно поменять в любой момент.</p>${ch('goal',GOALS.map(([v,n,d],i)=>[v,['☕','🚶','🏃','🚀'][i],n,d]))}</div>`;
   app.onclick=e=>{const b=e.target.closest('.choice');if(!b)return;
     if(b.dataset.reason){st.reason=b.dataset.reason;onboarding(1)}
@@ -794,6 +921,8 @@ function onboarding(step){
     else if(b.dataset.goal){st.goal=+b.dataset.goal;st.onboarded=true;save();app.onclick=null;tab='learn';render();toast('Отлично! Начните первый урок 🚀')}};
 }
 function render(){
+  if(CL.boot)return void($('#app').innerHTML='<p class="muted" style="text-align:center;margin-top:30vh">Загрузка…</p>');
+  if(CL.need)return authScreen();
   document.documentElement.dataset.theme=st.theme==='auto'?'':st.theme;
   if(st.theme==='auto')delete document.documentElement.dataset.theme;
   if(!st.onboarded)return onboarding(0);
@@ -813,9 +942,123 @@ function bindSettings(){
   $('#sTheme').onchange=e=>{st.theme=e.target.value;save();render()};
   $('#bExport').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(st,null,1)],{type:'application/json'}));a.download=`english-progress-${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
   $('#bImport').onclick=()=>$('#importFile').click();
-  $('#bReset').onclick=()=>{if(confirm('Удалить весь прогресс: слова, серию, достижения?')&&confirm('Точно? Это нельзя отменить.')){st=fresh();save();render()}};
+  $('#bReset').onclick=()=>{if(confirm('Удалить весь прогресс: слова, серию, достижения?')&&confirm('Точно? Это нельзя отменить.')){const o=st.owner;st=fresh();st.owner=o;st.resetAt=Date.now();save();render()}};
+  if($('#bLogout'))$('#bLogout').onclick=async()=>{if(!confirm('Выйти из аккаунта? Прогресс сохранён в облаке, после входа он вернётся.'))return;await push();signOut()};
+  if($('#bLogin'))$('#bLogin').onclick=()=>{setGuest(false);CL.need=true;CL.mode=CL.hasUsers?'in':'up';render();scrollTo(0,0)};
 }
-$('#importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{const o=JSON.parse(t);if(!o||o.v!==1||typeof o.words!=='object')throw 0;st=Object.assign(fresh(),o);save();render();toast('Прогресс загружен ✓')}).catch(()=>toast('Не получилось прочитать файл')).finally(()=>e.target.value='')};
+$('#importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{const o=JSON.parse(t);if(!o||o.v!==1||typeof o.words!=='object')throw 0;const ow=st.owner;st=migrate(Object.assign(fresh(),o));st.owner=ow;save();render();toast('Прогресс загружен ✓')}).catch(()=>toast('Не получилось прочитать файл')).finally(()=>e.target.value='')};
+
+/* ============ АККАУНТ И ОБЛАКО ============
+   Тот же сервер и те же аккаунты, что у сайта бюджета (/api). Прогресс лежит в /api/english.
+   Нет сервера (файл открыт с компьютера) — всё работает только в браузере. */
+const TKEY='budget.token',GKEY='english.guest',BKEY='english-synced-days';
+const CL={on:false,server:false,need:false,mode:'in',login:'',rev:0,dirty:false,busy:false,timer:null,sync:'',err:'',hasUsers:true,canSignup:false};
+try{CL.hasToken=!!localStorage.getItem(TKEY);CL.guest=localStorage.getItem(GKEY)==='1'}catch(e){}
+// Сколько XP по дням уже есть на сервере — чтобы при слиянии прибавлять только новое с этого устройства.
+function getBase(){try{const b=JSON.parse(localStorage.getItem(BKEY));return b&&b.owner===CL.login?b.days:null}catch(e){return null}}
+function setBase(days){try{localStorage.setItem(BKEY,JSON.stringify({owner:CL.login,days:days||{}}))}catch(e){}}
+function setGuest(v){CL.guest=v;try{v?localStorage.setItem(GKEY,'1'):localStorage.removeItem(GKEY)}catch(e){}}
+async function api(path,method='GET',body,keepalive){
+  const h={'content-type':'application/json'};let t=null;try{t=localStorage.getItem(TKEY)}catch(e){}if(t)h.authorization='Bearer '+t;
+  const r=await fetch('/api/'+path,{method,headers:h,body:body?JSON.stringify(body):undefined,cache:'no-store',keepalive:!!keepalive});
+  let d=null;try{d=await r.json()}catch(e){}
+  if(!r.ok||!d){const e=new Error(d&&d.message||'Нет связи с сервером ('+r.status+')');e.status=r.status;throw e}
+  return d;
+}
+const SYNC={wait:['☁️','Сохраняется…'],ok:['☁️','Сохранено в облаке'],err:['⚠️','Нет связи — сохраним, когда появится интернет']};
+function syncAttr(){const v=CL.on&&SYNC[CL.sync];return v?`title="${v[1]}" aria-label="${v[1]}" data-s="${CL.sync}"`:''}
+function setSync(v){CL.sync=v;const el=$('#sync');if(!el)return;const x=CL.on&&SYNC[v];el.textContent=x?x[0]:'';el.title=x?x[1]:'';el.dataset.s=v}
+function cloudDirty(){if(!CL.on)return;CL.dirty=true;setSync('wait');clearTimeout(CL.timer);CL.timer=setTimeout(push,1500)}
+async function push(keepalive){
+  clearTimeout(CL.timer);if(!CL.on||!CL.dirty)return;
+  if(CL.busy){CL.timer=setTimeout(push,800);return}
+  CL.busy=true;CL.dirty=false;setSync('wait');
+  const sent={...st.days};
+  try{const r=await api('english','PUT',{data:st,rev:CL.rev},keepalive);CL.rev=r.rev;setBase(sent);if(!CL.dirty)setSync('ok')}
+  catch(e){CL.dirty=true;
+    if(e.status===409){CL.busy=false;await pull();return}
+    if(e.status===401){CL.busy=false;signOut('Сеанс истёк. Войдите снова.');return}
+    setSync('err');CL.timer=setTimeout(push,15000)}
+  finally{CL.busy=false}
+}
+async function pull(){
+  try{const d=await api('english');CL.rev=d.rev||0;
+    if(d.data)st=merge(st,d.data,getBase());st.owner=CL.login;saveLocal();setBase(d.data?d.data.days:{});
+    if(!d.data||JSON.stringify(st)!==JSON.stringify(d.data)){CL.dirty=true;clearTimeout(CL.timer);CL.timer=setTimeout(push,300)}else setSync('ok');
+    return true}
+  catch(e){if(e.status===401)signOut('Сеанс истёк. Войдите снова.');else setSync('err');return false}
+}
+// Слияние прогресса с двух устройств: ничего не теряем, берём лучшее из обоих.
+function merge(a,b,base){
+  b=migrate(Object.assign(fresh(),b));
+  if((b.resetAt||0)>(a.upd||0))return b;
+  if((a.resetAt||0)>(b.upd||0))return a;
+  const useB=(b.onboarded&&!a.onboarded)||(!(a.onboarded&&!b.onboarded)&&(b.upd||0)>(a.upd||0));
+  const m=Object.assign(fresh(),useB?b:a);
+  // XP по дням: то, что на сервере, + то, что набрано здесь и ещё не отправлено (без базы — весь местный прогресс, например у гостя).
+  m.days={...b.days};for(const k in a.days)m.days[k]=(b.days[k]||0)+Math.max(0,(a.days[k]||0)-(base?base[k]||0:0));
+  m.xp=Object.values(m.days).reduce((x,y)=>x+y,0);
+  m.words={...a.words};for(const k in b.words){const x=m.words[k],y=b.words[k];if(!x||(y.t||0)>(x.t||0)||((y.t||0)===(x.t||0)&&y.box>x.box))m.words[k]=y}
+  m.done={...a.done};for(const k in b.done){const x=m.done[k],y=b.done[k];m.done[k]=x?{stars:Math.max(x.stars,y.stars),at:x.at<y.at?x.at:y.at}:y}
+  m.ach={...b.ach,...a.ach};
+  m.frozen=[...new Set([...(a.frozen||[]),...(b.frozen||[])])];
+  for(const f of ['lessons','perfect','goalsMet','reviews','sprintBest','sprintPlays','best'])m[f]=Math.max(a[f]||0,b[f]||0);
+  const da=a.lastStreakDay?dnum(a.lastStreakDay):-1,db=b.lastStreakDay?dnum(b.lastStreakDay):-1,w=db>da||(db===da&&b.streak>a.streak)?b:a;
+  m.streak=w.streak;m.lastStreakDay=w.lastStreakDay;m.freezes=w.freezes;
+  m.onboarded=!!(a.onboarded||b.onboarded);m.upd=Math.max(a.upd||0,b.upd||0);m.resetAt=Math.max(a.resetAt||0,b.resetAt||0);
+  return m;
+}
+async function afterLogin(login){
+  if(st.owner&&st.owner!==login)st=fresh(); // в браузере был чужой прогресс — не смешиваем
+  st.owner=login;CL.login=login;CL.on=true;CL.need=false;setGuest(false);
+  await pull();
+}
+async function boot(){
+  let status;try{status=await api('status')}catch(e){CL.boot=false;return} // сервера нет — только браузер
+  CL.server=true;CL.hasUsers=status.hasUsers;CL.canSignup=!status.hasUsers||status.allowSignup;
+  if(CL.hasToken){
+    try{const me=await api('me');await afterLogin(me.login);CL.boot=false;return}
+    catch(e){
+      if(e.status!==401&&st.owner){CL.login=st.owner;CL.on=true;CL.boot=false;setSync('err');return} // нет связи — работаем офлайн
+      try{localStorage.removeItem(TKEY)}catch(_){}
+    }
+  }
+  CL.boot=false;
+  if(!CL.guest){CL.need=true;CL.mode=CL.hasUsers?'in':'up'}
+}
+function signOut(msg){
+  clearTimeout(CL.timer);CL.on=false;CL.dirty=false;CL.login='';CL.rev=0;
+  try{localStorage.removeItem(TKEY);localStorage.removeItem(KEY);localStorage.removeItem(BKEY)}catch(e){}
+  st=fresh();CL.need=true;CL.mode='in';CL.err=msg||'';if(S)closeSession(true);render();
+}
+function authScreen(){
+  $('#nav').hidden=true;const up=CL.mode==='up',app=$('#app');app.onclick=null;
+  app.innerHTML=`<div class="ob"><img src="/english/icon.svg" alt="" width="64" height="64"><h1>${up?'Новый аккаунт':'Вход'}</h1>
+   <p class="muted">${up?(CL.hasUsers?'Придумайте логин и пароль — прогресс будет сохраняться на всех ваших устройствах.':'На сайте ещё нет аккаунтов. Ваш станет аккаунтом владельца — для английского и для бюджета.')
+     :'Войдите, чтобы прогресс сохранялся на телефоне, компьютере и любом другом устройстве. Логин и пароль — те же, что на сайте бюджета.'}</p>
+   <form id="af" class="card auth" novalidate>
+    <label>Логин<input class="tinput" id="aL" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" required></label>
+    <label>Пароль<input class="tinput" id="aP" type="password" autocomplete="${up?'new-password':'current-password'}" required></label>
+    ${up?'<label>Пароль ещё раз<input class="tinput" id="aP2" type="password" autocomplete="new-password" required></label>':''}
+    <div class="err" id="aErr" role="alert">${esc(CL.err||'')}</div>
+    <button class="btn primary big" type="submit" id="aBtn">${up?'Создать аккаунт':'Войти'}</button>
+   </form>
+   ${CL.canSignup?`<button class="btn" id="aToggle" style="width:100%">${up?'У меня уже есть аккаунт':'Создать аккаунт'}</button>`
+     :'<p class="muted" style="font-size:14px">Нет аккаунта? Его создаёт владелец сайта на сайте бюджета: «Настройки → Аккаунты на сайте».</p>'}
+   <button class="tipbtn" id="aGuest" style="margin-top:10px">Продолжить без входа — прогресс только на этом устройстве</button></div>`;
+  if($('#aToggle'))$('#aToggle').onclick=()=>{CL.mode=up?'in':'up';CL.err='';render()};
+  $('#aGuest').onclick=()=>{setGuest(true);CL.need=false;CL.err='';render()};
+  $('#af').onsubmit=async e=>{e.preventDefault();
+    const login=$('#aL').value.trim().toLowerCase(),pw=$('#aP').value,err=m=>{$('#aErr').textContent=m};
+    if(!/^[a-z0-9._-]{3,32}$/.test(login))return err('Логин: 3–32 латинские буквы, цифры, точка, дефис или подчёркивание.');
+    if(pw.length<6)return err('Пароль должен быть не короче 6 символов.');
+    if(up&&pw!==$('#aP2').value)return err('Пароли не совпадают.');
+    $('#aBtn').disabled=true;err('');
+    try{const r=await api(up?'register':'login','POST',{login,password:pw});try{localStorage.setItem(TKEY,r.token)}catch(_){}
+      CL.hasUsers=true;CL.err='';await afterLogin(r.login);render();toast(st.onboarded?`С возвращением, ${r.login}! 👋`:'Аккаунт готов! 🎉')}
+    catch(e){err(e.message);$('#aBtn').disabled=false}};
+  setTimeout(()=>$('#aL')&&$('#aL').focus(),50);
+}
 
 /* ============ ПРОЧЕЕ ============ */
 let toastT;
@@ -844,11 +1087,17 @@ document.addEventListener('keydown',e=>{
   if(S.keys&&/^[1-4]$/.test(e.key)&&e.target.tagName!=='INPUT')S.keys(+e.key);
 });
 
-const sev=checkStreak();
+CL.boot=!CL.hasToken&&!CL.guest;
 render();
+boot().then(()=>{const sev=checkStreak();render();
 if(sev&&sev.type==='frozen')toast(`❄️ Заморозка спасла вашу серию: пропущено ${days(sev.n)}`);
-else if(sev&&sev.type==='lost'&&sev.n>1)toast(`Серия из ${days(sev.n)} прервалась — ничего, начнём новую сегодня! 💪`);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!S){checkStreak();render()}});
+else if(sev&&sev.type==='lost'&&sev.n>1)toast(`Серия из ${days(sev.n)} прервалась — ничего, начнём новую сегодня! 💪`);});
+document.addEventListener('visibilitychange',async()=>{
+  if(document.hidden){if(CL.on&&CL.dirty)push(true);return}
+  if(S||CL.need)return;
+  if(CL.on&&!CL.dirty)await pull();
+  checkStreak();render();
+});
 </script>
 </body>
 </html>
