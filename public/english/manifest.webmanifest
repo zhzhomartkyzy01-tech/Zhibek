@@ -1,0 +1,10 @@
+{
+  "name": "Английский каждый день",
+  "short_name": "English",
+  "start_url": "/english/",
+  "scope": "/english/",
+  "display": "standalone",
+  "background_color": "#f5f4fb",
+  "theme_color": "#5b4bdb",
+  "icons": [{ "src": "/english/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
