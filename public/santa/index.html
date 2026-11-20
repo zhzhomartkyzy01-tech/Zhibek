@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Тайный Санта</title>
+<meta name="description" content="Жеребьёвка Тайного Санты для коллектива: каждый узнаёт только своего подопечного.">
+<meta name="theme-color" content="#0d241e">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one narrow column, like a gift tag; snow behind; everything centered on one card per screen */
+:root{
+  --pine:#0d241e; --pine-2:#143229; --card:#18392f; --line:#2a5244;
+  --cream:#f7f0e1; --muted:#a8bfb2; --berry:#e0504a; --berry-2:#c23d38; --gold:#efbd55;
+  --ok:#7fd1a0; --err:#ff8f86;
+  --display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--pine);color:var(--cream);font:16px/1.55 var(--body);
+  background-image:radial-gradient(1200px 600px at 50% -10%,#1d4a3c 0%,transparent 60%);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:calc(env(safe-area-inset-top,0px) + 24px) calc(env(safe-area-inset-bottom,0px) + 40px)}
+#snow{position:fixed;inset:0;pointer-events:none;z-index:0}
+main{position:relative;z-index:1;max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+[hidden]{display:none!important}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(30px,8vw,40px);font-weight:800;letter-spacing:-.01em}
+h2{font-size:22px;font-weight:700}
+h3{font-size:16px;font-weight:700}
+p{margin:0}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+.brand svg{flex:none}
+.brand span{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.02em}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.lead{color:var(--muted);font-size:17px}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:16px}
+.tag{position:relative}
+.tag::before{content:"";position:absolute;top:-7px;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--pine);border:1px solid var(--line)}
+label{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:14px}
+label .hint{font-weight:400;color:var(--muted);font-size:13px}
+input,textarea,select{font:inherit;color:var(--cream);background:var(--pine-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%}
+textarea{min-height:92px;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:transparent}
+input.code{font-family:var(--display);font-size:24px;letter-spacing:.3em;text-transform:uppercase;text-align:center;padding:14px}
+input.pin{font-size:22px;letter-spacing:.4em;text-align:center}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row>*{flex:1 1 140px;min-width:0}
+button,.btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:13px 18px;cursor:pointer;color:#fff;background:var(--berry);text-align:center;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:background .15s,transform .1s}
+button:hover{background:var(--berry-2)}
+button:active{transform:translateY(1px)}
+button:focus-visible,.link:focus-visible,.tabs button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+button[disabled]{opacity:.55;cursor:wait}
+button.ghost{background:transparent;color:var(--cream);border:1px solid var(--line)}
+button.ghost:hover{background:var(--pine-2)}
+button.gold{background:var(--gold);color:#2a1d05}
+button.gold:hover{background:#f5cd76}
+.link{background:none;border:0;padding:0;color:var(--gold);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.link:hover{background:none;color:#f5cd76}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--pine-2);border-radius:12px;padding:4px;gap:4px}
+.tabs button{background:transparent;color:var(--muted);padding:10px;font-size:14px}
+.tabs button[aria-selected="true"]{background:var(--card);color:var(--cream)}
+.msg{font-size:14px;border-radius:10px;padding:10px 12px}
+.msg.err{background:rgba(255,143,134,.12);color:var(--err)}
+.msg.ok{background:rgba(127,209,160,.12);color:var(--ok)}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--pine-2);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px;font-variant-numeric:tabular-nums}
+.chip b{color:var(--gold);font-weight:700}
+.bigcode{font-family:var(--display);font-size:clamp(34px,11vw,48px);font-weight:800;letter-spacing:.18em;text-align:center;color:var(--gold);padding:8px 0}
+.copybox{display:flex;gap:8px}
+.copybox input{flex:1;min-width:0;font-size:14px}
+.copybox button{flex:none;padding:10px 14px}
+.people{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.people li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.people li:first-child{border-top:0}
+.people .n{flex:1;min-width:0;overflow-wrap:anywhere}
+.people .w{font-size:12px;color:var(--muted)}
+.people button{padding:6px 10px;font-size:13px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--pine-2);border:1px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:13px;color:var(--gold);flex:none}
+.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--muted)}
+.steps b{color:var(--cream)}
+.confirm{border:1px dashed var(--gold);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+footer{text-align:center;font-size:13px;color:var(--muted)}
+
+/* gift */
+.gift-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:10px 0}
+.gift{position:relative;width:170px;height:160px;background:none;padding:0;border-radius:0;cursor:pointer}
+.gift:hover{background:none}
+.gift .box{position:absolute;left:15px;right:15px;bottom:0;height:105px;background:var(--berry);border-radius:6px}
+.gift .lid{position:absolute;left:5px;right:5px;top:22px;height:34px;background:var(--berry-2);border-radius:6px;transition:transform .6s cubic-bezier(.3,1.6,.5,1);transform-origin:20% 100%}
+.gift .rib-v{position:absolute;left:50%;width:22px;margin-left:-11px;top:22px;bottom:0;background:var(--gold)}
+.gift .lid .rib-v{top:0}
+.gift .bow{position:absolute;top:-22px;left:50%;width:70px;margin-left:-35px;height:30px}
+.gift .bow::before,.gift .bow::after{content:"";position:absolute;bottom:0;width:32px;height:26px;border:7px solid var(--gold);border-radius:50% 50% 10% 50%}
+.gift .bow::before{left:0;transform:rotate(-12deg)}
+.gift .bow::after{right:0;transform:scaleX(-1) rotate(-12deg)}
+.gift:not(.open){animation:wiggle 2.6s ease-in-out infinite}
+.gift.open .lid{transform:translate(-30px,-60px) rotate(-28deg)}
+@keyframes wiggle{0%,80%,100%{transform:rotate(0)}84%{transform:rotate(-4deg)}88%{transform:rotate(4deg)}92%{transform:rotate(-3deg)}96%{transform:rotate(2deg)}}
+.reveal{text-align:center;display:flex;flex-direction:column;gap:10px;animation:rise .5s ease both}
+.reveal .who{font-family:var(--display);font-size:clamp(28px,8vw,36px);font-weight:800;color:var(--gold);overflow-wrap:anywhere}
+.wishbox{background:var(--pine-2);border-radius:12px;padding:14px;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="snow" aria-hidden="true"></canvas>
+<main>
+  <a class="brand" href="./" id="homeLink" aria-label="На главную Тайного Санты">
+    <svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="26" width="48" height="32" rx="5" fill="#e0504a"/><rect x="4" y="18" width="56" height="12" rx="4" fill="#c23d38"/><rect x="28" y="18" width="8" height="40" fill="#efbd55"/><path d="M32 18c-6-10-18-8-14 0zM32 18c6-10 18-8 14 0z" fill="none" stroke="#efbd55" stroke-width="4"/></svg>
+    <span>ТАЙНЫЙ САНТА</span>
+  </a>
+
+  <!-- ГЛАВНАЯ -->
+  <section id="v-home" hidden>
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h1>Кто кому дарит, знает только сам даритель</h1>
+        <p class="lead">Организатор создаёт игру, коллеги регистрируются по коду, а после жеребьёвки каждый видит только своего подопечного.</p>
+      </div>
+      <form class="card tag" id="f-code">
+        <label for="codeInput">Код игры
+          <span class="hint">Его пришлёт организатор. 6 букв и цифр.</span>
+        </label>
+        <input id="codeInput" class="code" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="K7M2QX" required>
+        <div class="msg err" id="codeErr" hidden></div>
+        <button type="submit">Войти в игру</button>
+      </form>
+      <div class="card">
+        <h3>Вы организатор?</h3>
+        <p class="muted small">Создайте игру, отправьте код в общий чат и проведите жеребьёвку, когда все зарегистрируются. Пары не увидите даже вы.</p>
+        <button class="ghost" id="toCreate" type="button">Создать новую игру</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- СОЗДАНИЕ -->
+  <section id="v-create" hidden>
+    <form class="card" id="f-create">
+      <div><span class="eyebrow">Новая игра</span><h2 style="margin-top:6px">Настройте обмен подарками</h2></div>
+      <label for="c-title">Название<input id="c-title" maxlength="80" placeholder="Новый год 2027 в отделе продаж" required></label>
+      <div class="row">
+        <label for="c-budget">Бюджет<input id="c-budget" maxlength="40" placeholder="до 10 000 ₸"></label>
+        <label for="c-date">Дата обмена<input id="c-date" maxlength="40" placeholder="27 декабря"></label>
+      </div>
+      <label for="c-note">Правила или комментарий <span class="hint">Необязательно</span>
+        <textarea id="c-note" maxlength="300" placeholder="Дарим на корпоративе. Подпись на подарке не ставим!"></textarea></label>
+      <label for="c-pass">Пароль организатора
+        <span class="hint">Нужен, чтобы зайти в панель и провести жеребьёвку. Не короче 6 символов.</span>
+        <input id="c-pass" type="password" minlength="6" autocomplete="new-password" required></label>
+      <div class="msg err" id="createErr" hidden></div>
+      <div class="row"><button class="ghost" type="button" data-go="home">Назад</button><button type="submit">Создать игру</button></div>
+    </form>
+  </section>
+
+  <!-- ИГРА: ВХОД / РЕГИСТРАЦИЯ -->
+  <section id="v-room" hidden>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="roomhead" style="display:flex;flex-direction:column;gap:10px"></div>
+      <div class="card tag">
+        <div class="tabs" role="tablist">
+          <button type="button" role="tab" id="tab-join" aria-selected="true">Я новенький</button>
+          <button type="button" role="tab" id="tab-login" aria-selected="false">Я уже участвую</button>
+        </div>
+        <form id="f-join" style="display:flex;flex-direction:column;gap:14px">
+          <p class="msg err" id="joinClosed" hidden>Жеребьёвка уже прошла, новых участников не принимаем. Если вы зарегистрированы, войдите на вкладке «Я уже участвую».</p>
+          <label for="j-name">Ваше имя <span class="hint">Так вас увидит Санта. Лучше с фамилией, если есть тёзки.</span>
+            <input id="j-name" maxlength="60" autocomplete="name" placeholder="Айгерим Сапарова" required></label>
+          <label for="j-wish">Пожелание к подарку <span class="hint">Что любите, что не дарить, размер. Можно изменить позже.</span>
+            <textarea id="j-wish" maxlength="600" placeholder="Люблю кофе и настолки. Пожалуйста, без сладкого."></textarea></label>
+          <div class="row">
+            <label for="j-pin">Придумайте PIN<input id="j-pin" class="pin" inputmode="numeric" pattern="\d{4,8}" maxlength="8" autocomplete="new-password" placeholder="••••" required></label>
+            <label for="j-pin2">Повторите PIN<input id="j-pin2" class="pin" inputmode="numeric" pattern="\d{4,8}" maxlength="8" autocomplete="new-password" placeholder="••••" required></label>
+          </div>
+          <p class="muted small">PIN из 4–8 цифр. Запомните его: только по нему вы увидите, кому дарите. Восстановить PIN после жеребьёвки нельзя, даже организатору.</p>
+          <div class="msg err" id="joinErr" hidden></div>
+          <button type="submit">Участвовать</button>
+        </form>
+        <form id="f-login" hidden style="display:flex;flex-direction:column;gap:14px">
+          <label for="l-name">Ваше имя<select id="l-name" required></select></label>
+          <label for="l-pin">PIN<input id="l-pin" class="pin" inputmode="numeric" maxlength="8" autocomplete="current-password" placeholder="••••" required></label>
+          <div class="msg err" id="loginErr" hidden></div>
+          <button type="submit">Войти</button>
+        </form>
+      </div>
+      <footer><button class="link" type="button" id="toAdminLogin">Я организатор этой игры</button></footer>
+    </div>
+  </section>
+
+  <!-- УЧАСТНИК -->
+  <section id="v-me" hidden>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="roomhead" style="display:flex;flex-direction:column;gap:10px"></div>
+
+      <div class="card tag" id="me-wait" hidden>
+        <span class="eyebrow">Вы в игре</span>
+        <h2 id="me-hello"></h2>
+        <p class="muted">Ждём, пока зарегистрируются остальные. Организатор проведёт жеребьёвку, и здесь появится коробка с именем вашего подопечного.</p>
+        <p class="muted small">Зайдите позже по той же ссылке. Мы вас запомнили на этом устройстве.</p>
+        <button class="ghost" type="button" id="refreshBtn">Проверить, прошла ли жеребьёвка</button>
+      </div>
+
+      <form class="card tag" id="me-pin" hidden style="gap:14px">
+        <span class="eyebrow">Жеребьёвка прошла</span>
+        <h2>Введите PIN, чтобы открыть подарок</h2>
+        <label for="mp-pin">PIN<input id="mp-pin" class="pin" inputmode="numeric" maxlength="8" autocomplete="current-password" placeholder="••••" required></label>
+        <div class="msg err" id="mpErr" hidden></div>
+        <button type="submit">Узнать, кому я дарю</button>
+      </form>
+
+      <div class="card tag" id="me-gift" hidden>
+        <div class="gift-wrap" id="giftWrap">
+          <button class="gift" type="button" id="giftBtn" aria-label="Открыть подарок">
+            <span class="box"><span class="rib-v"></span></span>
+            <span class="lid"><span class="rib-v"></span><span class="bow"></span></span>
+          </button>
+          <p class="muted" id="giftHint">Нажмите на коробку. Убедитесь, что никто не смотрит в экран 👀</p>
+        </div>
+        <div class="reveal" id="reveal" hidden>
+          <span class="eyebrow">Вы Тайный Санта для</span>
+          <div class="who" id="rv-name"></div>
+          <div class="wishbox" id="rv-wish"></div>
+          <p class="muted small">Пожелание обновляется, если подопечный его изменит. Не рассказывайте никому, кто вам выпал!</p>
+          <button class="ghost" type="button" id="hideBtn">Спрятать</button>
+        </div>
+      </div>
+
+      <form class="card" id="f-wish">
+        <h3>Моё пожелание для моего Санты</h3>
+        <textarea id="w-wish" maxlength="600" aria-label="Моё пожелание"></textarea>
+        <div class="msg" id="wishMsg" hidden></div>
+        <button class="ghost" type="submit">Сохранить пожелание</button>
+      </form>
+
+      <footer class="row" style="justify-content:center;flex-wrap:wrap;gap:18px">
+        <button class="link" type="button" id="logoutBtn">Выйти на этом устройстве</button>
+        <button class="link" type="button" id="leaveBtn">Выйти из игры</button>
+      </footer>
+      <div class="confirm" id="leaveConfirm" hidden>
+        <p>Удалить вас из игры? Пожелание и PIN сотрутся.</p>
+        <div class="row"><button class="ghost" type="button" id="leaveNo">Отмена</button><button type="button" id="leaveYes">Да, выйти</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ВХОД ОРГАНИЗАТОРА -->
+  <section id="v-adminlogin" hidden>
+    <form class="card" id="f-admin">
+      <span class="eyebrow">Панель организатора</span>
+      <h2 class="al-title"></h2>
+      <label for="a-pass">Пароль организатора<input id="a-pass" type="password" autocomplete="current-password" required></label>
+      <div class="msg err" id="adminErr" hidden></div>
+      <div class="row"><button class="ghost" type="button" data-go="room">Назад</button><button type="submit">Войти</button></div>
+    </form>
+  </section>
+
+  <!-- ПАНЕЛЬ ОРГАНИЗАТОРА -->
+  <section id="v-admin" hidden>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="roomhead" style="display:flex;flex-direction:column;gap:10px"></div>
+
+      <div class="card" id="ad-created" hidden>
+        <span class="eyebrow">Игра создана</span>
+        <div class="bigcode" id="ad-code"></div>
+        <ol class="steps">
+          <li><b>Отправьте сообщение ниже</b> в общий чат коллектива.</li>
+          <li>Каждый откроет ссылку, впишет имя, пожелание и свой PIN.</li>
+          <li>Когда все зарегистрируются, нажмите <b>«Провести жеребьёвку»</b>.</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Приглашение для чата</h3>
+        <textarea id="ad-invite" readonly style="min-height:150px"></textarea>
+        <button type="button" class="gold" id="copyInvite">Скопировать приглашение</button>
+        <div class="copybox"><input id="ad-link" readonly aria-label="Ссылка на игру"><button type="button" class="ghost" id="copyLink">Ссылка</button></div>
+        <div class="msg ok" id="copyMsg" hidden>Скопировано</div>
+      </div>
+
+      <div class="card">
+        <div class="row" style="align-items:center"><h3>Участники</h3><span class="chip" style="flex:none"><b id="ad-count">0</b> чел.</span></div>
+        <p class="muted small" id="ad-drawnNote"></p>
+        <ul class="people" id="ad-people"></ul>
+        <p class="muted small" id="ad-empty">Пока никто не зарегистрировался. Отправьте приглашение в чат.</p>
+        <div class="msg err" id="drawErr" hidden></div>
+        <button type="button" id="drawBtn">Провести жеребьёвку</button>
+        <div class="confirm" id="drawConfirm" hidden>
+          <p><b>Все на месте?</b> После жеребьёвки регистрация закроется. Пары не увидит никто, кроме самих дарителей.</p>
+          <div class="row"><button class="ghost" type="button" id="drawNo">Подождать</button><button type="button" id="drawYes">Да, провести</button></div>
+        </div>
+        <button type="button" class="ghost" id="undrawBtn" hidden>Перезапустить жеребьёвку</button>
+        <div class="confirm" id="undrawConfirm" hidden>
+          <p>Текущие пары сотрутся, регистрация снова откроется. Потом проведите жеребьёвку заново, и всем нужно будет снова открыть свой подарок. Это нужно, если кто-то забыл PIN или кого-то надо добавить.</p>
+          <div class="row"><button class="ghost" type="button" id="undrawNo">Отмена</button><button type="button" id="undrawYes">Перезапустить</button></div>
+        </div>
+      </div>
+
+      <form class="card" id="f-settings">
+        <h3>Настройки игры</h3>
+        <label for="s-title">Название<input id="s-title" maxlength="80" required></label>
+        <div class="row">
+          <label for="s-budget">Бюджет<input id="s-budget" maxlength="40"></label>
+          <label for="s-date">Дата обмена<input id="s-date" maxlength="40"></label>
+        </div>
+        <label for="s-note">Правила или комментарий<textarea id="s-note" maxlength="300"></textarea></label>
+        <div class="msg" id="setMsg" hidden></div>
+        <button type="submit" class="ghost">Сохранить</button>
+      </form>
+
+      <p class="muted small" style="text-align:center">Хотите участвовать сами? Откройте ссылку игры и зарегистрируйтесь как все.<br>
+        <button class="link" type="button" id="adminToRoom">Перейти к регистрации</button> · <button class="link" type="button" id="adminLogout">Выйти из панели</button></p>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const API = "/santa-api";
+  const views = ["home", "create", "room", "me", "adminlogin", "admin"];
+  const S = { code: null, room: null, receiver: null };
+
+  // --- хранилище на устройстве ---
+  const ls = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+    del(k) { try { localStorage.removeItem(k); } catch {} },
+  };
+  const sessKey = () => "santa:" + S.code;
+  const admKey = () => "santa-admin:" + S.code;
+
+  async function api(path, { method = "GET", body, token } = {}) {
+    const headers = { "content-type": "application/json" };
+    if (token) headers.authorization = "Bearer " + token;
+    let res;
+    try {
+      res = await fetch(API + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    } catch {
+      throw { message: "Нет связи с сервером. Проверьте интернет и попробуйте ещё раз." };
+    }
+    let data = {};
+    try { data = await res.json(); } catch {}
+    if (!res.ok) throw { status: res.status, ...data, message: data.message || "Что-то пошло не так. Попробуйте ещё раз." };
+    return data;
+  }
+
+  function show(name) {
+    views.forEach((v) => ($("#v-" + v).hidden = v !== name));
+    window.scrollTo(0, 0);
+  }
+  function setUrl(code, admin) {
+    const u = new URL(location.href);
+    u.search = code ? "?r=" + code + (admin ? "&admin=1" : "") : "";
+    history.replaceState(null, "", u);
+  }
+  function msg(el, text, kind = "err") {
+    el.textContent = text || "";
+    el.className = "msg " + kind;
+    el.hidden = !text;
+  }
+  async function busy(btn, fn) {
+    btn.disabled = true;
+    try { await fn(); } finally { btn.disabled = false; }
+  }
+  const text = (el, s) => (el.textContent = s);
+
+  function renderRoomHead(room) {
+    document.querySelectorAll(".roomhead").forEach((h) => {
+      h.replaceChildren();
+      const eb = document.createElement("span"); eb.className = "eyebrow"; eb.textContent = "Игра " + room.code;
+      const t = document.createElement("h1"); t.textContent = room.title; t.style.fontSize = "clamp(26px,7vw,34px)";
+      const f = document.createElement("div"); f.className = "facts";
+      const chip = (label, val) => { const c = document.createElement("span"); c.className = "chip"; c.append(label + " "); const b = document.createElement("b"); b.textContent = val; c.append(b); f.append(c); };
+      chip("Участников", String(room.count));
+      if (room.budget) chip("Бюджет", room.budget);
+      if (room.date) chip("Обмен", room.date);
+      chip("Статус", room.drawn ? "жеребьёвка прошла" : "идёт регистрация");
+      h.append(eb, t, f);
+      if (room.note) { const n = document.createElement("p"); n.className = "muted"; n.textContent = room.note; n.style.whiteSpace = "pre-wrap"; h.append(n); }
+    });
+    document.title = room.title + " · Тайный Санта";
+  }
+
+  // --- маршрутизация при загрузке ---
+  async function openRoom(code, { admin = false } = {}) {
+    code = String(code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    S.code = code;
+    let room;
+    try { room = await api("/room/" + code); }
+    catch (e) {
+      S.code = null; setUrl(null); show("home");
+      $("#codeInput").value = code;
+      msg($("#codeErr"), e.message);
+      return;
+    }
+    S.room = room;
+    ls.set("santa:last", code);
+    renderRoomHead(room);
+    const adm = ls.get(admKey());
+    if (admin) {
+      setUrl(code, true);
+      if (adm) return openAdmin();
+      text($(".al-title"), room.title);
+      return show("adminlogin");
+    }
+    setUrl(code);
+    const sess = ls.get(sessKey());
+    if (sess?.token) return openMe();
+    fillRoomForms(room);
+    show("room");
+  }
+
+  function fillRoomForms(room) {
+    const sel = $("#l-name");
+    sel.replaceChildren();
+    const o0 = document.createElement("option"); o0.value = ""; o0.textContent = room.names.length ? "Выберите себя из списка" : "Пока никого нет"; sel.append(o0);
+    room.names.forEach((n) => { const o = document.createElement("option"); o.value = n; o.textContent = n; sel.append(o); });
+    $("#joinClosed").hidden = !room.drawn;
+    $("#f-join").querySelectorAll("input,textarea,button").forEach((el) => (el.disabled = room.drawn));
+    selectTab(room.drawn ? "login" : "join");
+  }
+  function selectTab(which) {
+    $("#tab-join").setAttribute("aria-selected", which === "join");
+    $("#tab-login").setAttribute("aria-selected", which === "login");
+    $("#f-join").hidden = which !== "join";
+    $("#f-login").hidden = which !== "login";
+  }
+
+  // --- участник ---
+  async function openMe() {
+    const sess = ls.get(sessKey());
+    let d;
+    try {
+      d = await api("/room/" + S.code + "/me" + (sess.receiverId ? "?receiver=" + encodeURIComponent(sess.receiverId) : ""), { token: sess.token });
+    } catch (e) {
+      if (e.status === 401) { ls.del(sessKey()); fillRoomForms(S.room); show("room"); msg($("#loginErr"), e.message); selectTab("login"); return; }
+      throw e;
+    }
+    S.room = d.room; renderRoomHead(d.room);
+    text($("#me-hello"), "Привет, " + d.me.name + "!");
+    $("#w-wish").value = d.me.wish || "";
+    msg($("#wishMsg"), "");
+    $("#me-wait").hidden = d.room.drawn;
+    const needPin = d.room.drawn && d.hasPair && !d.receiver;
+    $("#me-pin").hidden = !needPin;
+    $("#me-gift").hidden = !(d.room.drawn && d.receiver);
+    $("#leaveBtn").hidden = d.room.drawn;
+    if (d.room.drawn && !d.hasPair) {
+      $("#me-wait").hidden = false;
+      text($("#me-hello"), d.me.name + ", вас нет в этой жеребьёвке");
+    }
+    if (d.receiver) {
+      S.receiver = d.receiver;
+      text($("#rv-name"), d.receiver.name);
+      text($("#rv-wish"), d.receiver.wish || "Подопечный пока не написал пожелание. Загляните позже.");
+      hideGift();
+    }
+    show("me");
+  }
+  function hideGift() {
+    $("#giftBtn").classList.remove("open");
+    $("#giftWrap").hidden = false;
+    $("#reveal").hidden = true;
+  }
+
+  // --- организатор ---
+  async function openAdmin(justCreated) {
+    const token = ls.get(admKey());
+    let d;
+    try { d = await api("/room/" + S.code + "/admin", { token }); }
+    catch (e) {
+      if (e.status === 401) { ls.del(admKey()); text($(".al-title"), S.room?.title || ""); show("adminlogin"); return; }
+      throw e;
+    }
+    S.room = d.room; renderRoomHead(d.room);
+    $("#ad-created").hidden = !justCreated;
+    text($("#ad-code"), d.room.code);
+    const link = location.origin + location.pathname + "?r=" + d.room.code;
+    $("#ad-link").value = link;
+    const lines = ["🎅 Играем в Тайного Санту: «" + d.room.title + "»!"];
+    if (d.room.budget) lines.push("Бюджет: " + d.room.budget);
+    if (d.room.date) lines.push("Обмен подарками: " + d.room.date);
+    lines.push("", "1. Откройте ссылку: " + link, "2. Нажмите «Я новенький», впишите имя, пожелание и придумайте PIN.", "3. После жеребьёвки зайдите снова и узнайте, кому дарите.", "", "Код игры: " + d.room.code, "Кто кому дарит, не узнает никто, даже организатор 🤫");
+    $("#ad-invite").value = lines.join("\n");
+    text($("#ad-count"), String(d.people.length));
+    const ul = $("#ad-people"); ul.replaceChildren();
+    d.people.forEach((p) => {
+      const li = document.createElement("li");
+      const av = document.createElement("span"); av.className = "avatar"; av.textContent = p.name.trim()[0]?.toUpperCase() || "?";
+      const n = document.createElement("div"); n.className = "n"; n.textContent = p.name;
+      const w = document.createElement("div"); w.className = "w"; w.textContent = p.hasWish ? "пожелание написано" : "без пожелания"; n.append(w);
+      li.append(av, n);
+      if (!d.drawnAt) {
+        const rm = document.createElement("button"); rm.type = "button"; rm.className = "ghost"; rm.textContent = "Убрать";
+        rm.setAttribute("aria-label", "Убрать " + p.name);
+        let armed = false;
+        rm.onclick = () => busy(rm, async () => {
+          if (!armed) { armed = true; rm.textContent = "Точно?"; setTimeout(() => { armed = false; rm.textContent = "Убрать"; }, 3000); return; }
+          await api("/room/" + S.code + "/admin/remove", { method: "POST", token, body: { id: p.id } });
+          openAdmin();
+        });
+        li.append(rm);
+      }
+      ul.append(li);
+    });
+    $("#ad-empty").hidden = d.people.length > 0;
+    const drawn = !!d.drawnAt;
+    $("#drawBtn").hidden = drawn; $("#drawConfirm").hidden = true;
+    $("#undrawBtn").hidden = !drawn; $("#undrawConfirm").hidden = true;
+    text($("#ad-drawnNote"), drawn
+      ? "Жеребьёвка проведена " + new Date(d.drawnAt).toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) + ". Участники могут открыть свои подарки."
+      : d.people.length < 3 ? "Для жеребьёвки нужно минимум 3 человека." : "Когда все зарегистрируются, проведите жеребьёвку.");
+    $("#drawBtn").disabled = d.people.length < 3;
+    msg($("#drawErr"), "");
+    $("#s-title").value = d.room.title; $("#s-budget").value = d.room.budget || "";
+    $("#s-date").value = d.room.date || ""; $("#s-note").value = d.room.note || "";
+    setUrl(S.code, true);
+    show("admin");
+  }
+
+  // --- события ---
+  $("#f-code").onsubmit = (e) => { e.preventDefault(); msg($("#codeErr"), ""); busy(e.submitter || $("#f-code button"), () => openRoom($("#codeInput").value)); };
+  $("#codeInput").oninput = (e) => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); };
+  $("#toCreate").onclick = () => show("create");
+  document.querySelectorAll("[data-go]").forEach((b) => (b.onclick = () => {
+    if (b.dataset.go === "room" && S.code) { setUrl(S.code); fillRoomForms(S.room); show("room"); } else { setUrl(null); show("home"); }
+  }));
+  $("#homeLink").onclick = (e) => { e.preventDefault(); setUrl(null); S.code = null; show("home"); };
+
+  $("#f-create").onsubmit = (e) => {
+    e.preventDefault(); msg($("#createErr"), "");
+    busy(e.submitter, async () => {
+      try {
+        const d = await api("/create", { method: "POST", body: { title: $("#c-title").value, budget: $("#c-budget").value, date: $("#c-date").value, note: $("#c-note").value, password: $("#c-pass").value } });
+        S.code = d.code; ls.set(admKey(), d.adminToken);
+        S.room = await api("/room/" + d.code);
+        await openAdmin(true);
+      } catch (err) { msg($("#createErr"), err.message); }
+    });
+  };
+
+  $("#tab-join").onclick = () => selectTab("join");
+  $("#tab-login").onclick = () => selectTab("login");
+
+  $("#f-join").onsubmit = (e) => {
+    e.preventDefault(); msg($("#joinErr"), "");
+    const pin = $("#j-pin").value, pin2 = $("#j-pin2").value;
+    if (!/^\d{4,8}$/.test(pin)) return msg($("#joinErr"), "PIN должен состоять из 4–8 цифр.");
+    if (pin !== pin2) return msg($("#joinErr"), "PIN не совпадает. Введите одинаковый PIN в оба поля.");
+    busy(e.submitter, async () => {
+      try {
+        const d = await api("/room/" + S.code + "/join", { method: "POST", body: { name: $("#j-name").value, wish: $("#j-wish").value, pin } });
+        ls.set(sessKey(), { token: d.token, id: d.id, name: d.name, receiverId: null });
+        $("#f-join").reset();
+        await openMe();
+      } catch (err) { msg($("#joinErr"), err.message); }
+    });
+  };
+
+  async function pinLogin(name, pin, errEl) {
+    try {
+      const d = await api("/room/" + S.code + "/login", { method: "POST", body: { name, pin } });
+      ls.set(sessKey(), { token: d.token, id: d.id, name: d.name, receiverId: d.receiverId });
+      await openMe();
+      return true;
+    } catch (err) { msg(errEl, err.message); return false; }
+  }
+  $("#f-login").onsubmit = (e) => {
+    e.preventDefault(); msg($("#loginErr"), "");
+    if (!$("#l-name").value) return msg($("#loginErr"), "Выберите своё имя из списка.");
+    busy(e.submitter, async () => { if (await pinLogin($("#l-name").value, $("#l-pin").value, $("#loginErr"))) $("#l-pin").value = ""; });
+  };
+  $("#me-pin").onsubmit = (e) => {
+    e.preventDefault(); msg($("#mpErr"), "");
+    const sess = ls.get(sessKey());
+    busy(e.submitter, async () => { if (await pinLogin(sess.name, $("#mp-pin").value, $("#mpErr"))) $("#mp-pin").value = ""; });
+  };
+  $("#refreshBtn").onclick = (e) => busy(e.currentTarget, openMe);
+
+  $("#giftBtn").onclick = () => {
+    $("#giftBtn").classList.add("open");
+    setTimeout(() => { $("#giftWrap").hidden = true; $("#reveal").hidden = false; }, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 650);
+  };
+  $("#hideBtn").onclick = hideGift;
+
+  $("#f-wish").onsubmit = (e) => {
+    e.preventDefault();
+    const sess = ls.get(sessKey());
+    busy(e.submitter, async () => {
+      try {
+        await api("/room/" + S.code + "/wish", { method: "POST", token: sess.token, body: { wish: $("#w-wish").value } });
+        msg($("#wishMsg"), "Сохранено. Ваш Санта увидит новое пожелание.", "ok");
+      } catch (err) { msg($("#wishMsg"), err.message); }
+    });
+  };
+  $("#logoutBtn").onclick = () => { ls.del(sessKey()); fillRoomForms(S.room); show("room"); selectTab("login"); };
+  $("#leaveBtn").onclick = () => ($("#leaveConfirm").hidden = false);
+  $("#leaveNo").onclick = () => ($("#leaveConfirm").hidden = true);
+  $("#leaveYes").onclick = (e) => busy(e.currentTarget, async () => {
+    const sess = ls.get(sessKey());
+    try { await api("/room/" + S.code + "/leave", { method: "POST", token: sess.token }); } catch {}
+    ls.del(sessKey()); $("#leaveConfirm").hidden = true;
+    await openRoom(S.code);
+  });
+
+  $("#toAdminLogin").onclick = () => { if (ls.get(admKey())) return openAdmin(); text($(".al-title"), S.room.title); setUrl(S.code, true); show("adminlogin"); };
+  $("#f-admin").onsubmit = (e) => {
+    e.preventDefault(); msg($("#adminErr"), "");
+    busy(e.submitter, async () => {
+      try {
+        const d = await api("/room/" + S.code + "/admin/login", { method: "POST", body: { password: $("#a-pass").value } });
+        ls.set(admKey(), d.adminToken); $("#a-pass").value = "";
+        await openAdmin();
+      } catch (err) { msg($("#adminErr"), err.message); }
+    });
+  };
+  async function copy(textValue, input) {
+    try { await navigator.clipboard.writeText(textValue); }
+    catch { input.focus(); input.select(); try { document.execCommand("copy"); } catch {} }
+    const m = $("#copyMsg"); m.hidden = false; setTimeout(() => (m.hidden = true), 1800);
+  }
+  $("#copyInvite").onclick = () => copy($("#ad-invite").value, $("#ad-invite"));
+  $("#copyLink").onclick = () => copy($("#ad-link").value, $("#ad-link"));
+  $("#drawBtn").onclick = () => { $("#drawConfirm").hidden = false; $("#drawBtn").hidden = true; };
+  $("#drawNo").onclick = () => { $("#drawConfirm").hidden = true; $("#drawBtn").hidden = false; };
+  $("#drawYes").onclick = (e) => busy(e.currentTarget, async () => {
+    try { await api("/room/" + S.code + "/admin/draw", { method: "POST", token: ls.get(admKey()) }); await openAdmin(); }
+    catch (err) { $("#drawConfirm").hidden = true; $("#drawBtn").hidden = false; msg($("#drawErr"), err.message); }
+  });
+  $("#undrawBtn").onclick = () => { $("#undrawConfirm").hidden = false; $("#undrawBtn").hidden = true; };
+  $("#undrawNo").onclick = () => { $("#undrawConfirm").hidden = true; $("#undrawBtn").hidden = false; };
+  $("#undrawYes").onclick = (e) => busy(e.currentTarget, async () => {
+    await api("/room/" + S.code + "/admin/undraw", { method: "POST", token: ls.get(admKey()) }); await openAdmin();
+  });
+  $("#f-settings").onsubmit = (e) => {
+    e.preventDefault();
+    busy(e.submitter, async () => {
+      try {
+        await api("/room/" + S.code + "/admin/settings", { method: "POST", token: ls.get(admKey()), body: { title: $("#s-title").value, budget: $("#s-budget").value, date: $("#s-date").value, note: $("#s-note").value } });
+        await openAdmin(); msg($("#setMsg"), "Сохранено", "ok");
+      } catch (err) { msg($("#setMsg"), err.message); }
+    });
+  };
+  $("#adminToRoom").onclick = () => openRoom(S.code);
+  $("#adminLogout").onclick = () => { ls.del(admKey()); openRoom(S.code); };
+
+  // --- старт ---
+  const q = new URLSearchParams(location.search);
+  const startCode = q.get("r");
+  if (startCode) openRoom(startCode, { admin: q.get("admin") === "1" }).catch((e) => { show("home"); msg($("#codeErr"), e.message); });
+  else {
+    const last = ls.get("santa:last");
+    if (last) $("#codeInput").value = last;
+    show("home");
+  }
+
+  // --- снег ---
+  const cv = $("#snow"), ctx = cv.getContext("2d");
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    let flakes = [], w, h;
+    const resize = () => {
+      w = cv.width = innerWidth * devicePixelRatio; h = cv.height = innerHeight * devicePixelRatio;
+      cv.style.width = innerWidth + "px"; cv.style.height = innerHeight + "px";
+      const n = Math.min(90, Math.round(innerWidth / 12));
+      flakes = Array.from({ length: n }, () => ({ x: Math.random() * w, y: Math.random() * h, r: (Math.random() * 1.8 + .6) * devicePixelRatio, s: Math.random() * .5 + .25, d: Math.random() * Math.PI * 2 }));
+    };
+    resize(); addEventListener("resize", resize);
+    const tick = () => {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "rgba(247,240,225,.55)";
+      for (const f of flakes) {
+        f.y += f.s * devicePixelRatio; f.d += .01; f.x += Math.sin(f.d) * .3 * devicePixelRatio;
+        if (f.y > h) { f.y = -5; f.x = Math.random() * w; }
+        ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 7); ctx.fill();
+      }
+      requestAnimationFrame(tick);
+    };
+    tick();
+  }
+})();
+</script>
+</body>
+</html>
