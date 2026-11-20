@@ -4,7 +4,8 @@
 // - Пары нигде не хранятся в открытом виде. У каждого участника есть пара ключей X25519.
 //   Закрытый ключ зашифрован ключом, полученным из его PIN (scrypt), и без PIN не читается.
 // - При жеребьёвке сервер шифрует «кому дарить» открытым ключом дарителя и тут же забывает пары.
-// - Организатор видит только список имён и кнопку жеребьёвки.
+// - Организатор тоже может посмотреть пары: при жеребьёвке полный список шифруется его ключом,
+//   а закрытый ключ организатора защищён паролем организатора. Без пароля список не прочитать.
 //
 // Записи:  rooms/<CODE>/meta          — название, бюджет, дата, пароль организатора, статус
 //          rooms/<CODE>/p/<id>        — участник: имя, пожелание, хеш PIN, ключи, зашифрованная пара
@@ -61,17 +62,36 @@ function openWith(privPem, sealed) {
   return aesOpen(key, box).toString();
 }
 
-function newParticipant(name, pin, wish) {
+function makeKeys(pin) {
   const salt = crypto.randomBytes(16).toString("hex");
   const { check, key } = derive(pin, salt);
   const kp = crypto.generateKeyPairSync("x25519");
-  const privPem = kp.privateKey.export({ type: "pkcs8", format: "pem" });
+  return {
+    salt, check: check.toString("hex"),
+    pub: kp.publicKey.export({ type: "spki", format: "pem" }),
+    priv: aesSeal(key, Buffer.from(kp.privateKey.export({ type: "pkcs8", format: "pem" }))),
+  };
+}
+
+// Ключи организатора: закрытый ключ зашифрован паролем организатора.
+function ensureAdminKeys(meta, password) {
+  if (meta.adminPub) return false;
+  const k = makeKeys(password);
+  meta.adminPub = k.pub; meta.adminPriv = k.priv; meta.adminKSalt = k.salt;
+  return true;
+}
+function adminPairs(meta, password) {
+  if (!meta.pairs || !meta.adminPriv) return null;
+  const { key } = derive(password, meta.adminKSalt);
+  const privPem = aesOpen(key, meta.adminPriv).toString();
+  return JSON.parse(openWith(privPem, meta.pairs)); // [[giverId, receiverId], ...]
+}
+
+function newParticipant(name, pin, wish) {
   return {
     id: crypto.randomBytes(9).toString("base64url"),
     name, nk: nameKey(name), wish,
-    salt, check: check.toString("hex"),
-    pub: kp.publicKey.export({ type: "spki", format: "pem" }),
-    priv: aesSeal(key, Buffer.from(privPem)),
+    ...makeKeys(pin),
     pair: null, fails: 0, lockUntil: 0, created: Date.now(),
   };
 }
@@ -152,6 +172,7 @@ export async function handle(req, st) {
       adminHash: crypto.scryptSync(password, salt, 64).toString("hex"),
       created: Date.now(), drawnAt: 0, adminV: 0,
     };
+    ensureAdminKeys(meta, password);
     await st.setJSON(metaKey(code), meta);
     return json({ code, adminToken: await sign(st, { r: code, a: 1, v: 0 }) });
   }
@@ -241,6 +262,22 @@ export async function handle(req, st) {
   return adminRoutes(st, code, meta, action, m, body);
 }
 
+// Повторная проверка пароля организатора для действий с парами (с блокировкой после 10 ошибок).
+async function checkAdminPassword(st, code, meta, password) {
+  if (meta.lockUntil > Date.now()) return fail(429, "locked", "Слишком много неудачных попыток. Попробуйте через 15 минут.");
+  const h = crypto.scryptSync(String(password ?? ""), meta.salt, 64);
+  if (!crypto.timingSafeEqual(h, Buffer.from(meta.adminHash, "hex"))) {
+    meta.fails = (meta.fails || 0) + 1;
+    if (meta.fails >= MAX_FAILS) { meta.lockUntil = Date.now() + LOCK_MS; meta.fails = 0; }
+    await st.setJSON(metaKey(code), meta);
+    return fail(401, "bad_credentials", "Неверный пароль организатора.");
+  }
+  let changed = ensureAdminKeys(meta, String(password));
+  if (meta.fails || meta.lockUntil) { meta.fails = 0; meta.lockUntil = 0; changed = true; }
+  if (changed) await st.setJSON(metaKey(code), meta);
+  return null;
+}
+
 async function adminRoutes(st, code, meta, action, m, body) {
   if (action === "admin" && m === "GET") {
     const people = await listPeople(st, code);
@@ -264,10 +301,12 @@ async function adminRoutes(st, code, meta, action, m, body) {
     if (meta.drawnAt) return fail(409, "drawn", "Жеребьёвка уже проведена.");
     const people = await listPeople(st, code);
     if (people.length < 3) return fail(400, "few", "Нужно хотя бы 3 участника.");
-    for (const [giver, receiver] of drawCycle(people)) {
+    const cycle = drawCycle(people);
+    for (const [giver, receiver] of cycle) {
       giver.pair = sealFor(giver.pub, receiver.id);
     }
     await Promise.all(people.map((p) => st.setJSON(pKey(code, p.id), p)));
+    meta.pairs = meta.adminPub ? sealFor(meta.adminPub, JSON.stringify(cycle.map(([g, r]) => [g.id, r.id]))) : null;
     meta.drawnAt = Date.now();
     await st.setJSON(metaKey(code), meta);
     return json({ ok: true, count: people.length });
@@ -275,8 +314,37 @@ async function adminRoutes(st, code, meta, action, m, body) {
   if (action === "admin/undraw" && m === "POST") {
     const people = await listPeople(st, code);
     await Promise.all(people.filter((p) => p.pair).map((p) => st.setJSON(pKey(code, p.id), { ...p, pair: null })));
-    meta.drawnAt = 0;
+    meta.drawnAt = 0; meta.pairs = null;
     await st.setJSON(metaKey(code), meta);
+    return json({ ok: true });
+  }
+  // POST admin/pairs {password} — список «кто кому дарит», только с паролем организатора
+  if (action === "admin/pairs" && m === "POST") {
+    const bad = await checkAdminPassword(st, code, meta, body.password);
+    if (bad) return bad;
+    if (!meta.drawnAt) return fail(409, "not_drawn", "Жеребьёвка ещё не проведена.");
+    const list = adminPairs(meta, String(body.password));
+    if (!list) return fail(409, "no_pairs", "Эта жеребьёвка прошла до появления функции. Перезапустите жеребьёвку, и пары станут видны.");
+    const byId = Object.fromEntries((await listPeople(st, code)).map((p) => [p.id, p.name]));
+    return json({ pairs: list.map(([g, r]) => ({ giver: byId[g] || "(удалён)", receiver: byId[r] || "(удалён)" })) });
+  }
+  // POST admin/resetpin {id, pin, password} — новый PIN участнику, пара сохраняется
+  if (action === "admin/resetpin" && m === "POST") {
+    if (!PIN_RE.test(String(body.pin ?? ""))) return fail(400, "invalid", "Новый PIN: от 4 до 8 цифр.");
+    const bad = await checkAdminPassword(st, code, meta, body.password);
+    if (bad) return bad;
+    const id = String(body.id ?? "").replace(/[^\w-]/g, "");
+    const p = await st.get(pKey(code, id), { type: "json" });
+    if (!p) return fail(404, "not_found", "Участник не найден.");
+    let receiverId = null;
+    if (meta.drawnAt && p.pair) {
+      const list = adminPairs(meta, String(body.password));
+      receiverId = list?.find(([g]) => g === id)?.[1];
+      if (!receiverId) return fail(409, "no_pairs", "Для этой жеребьёвки сменить PIN нельзя. Перезапустите жеребьёвку.");
+    }
+    Object.assign(p, makeKeys(body.pin), { fails: 0, lockUntil: 0 });
+    p.pair = receiverId ? sealFor(p.pub, receiverId) : null;
+    await st.setJSON(pKey(code, id), p);
     return json({ ok: true });
   }
   return fail(404, "not_found", "Не найдено.");
@@ -295,7 +363,8 @@ async function adminLogin(st, req, code) {
     await st.setJSON(metaKey(code), meta);
     return fail(401, "bad_credentials", "Неверный пароль организатора.");
   }
-  if (meta.fails || meta.lockUntil) { meta.fails = 0; meta.lockUntil = 0; await st.setJSON(metaKey(code), meta); }
+  const keysAdded = ensureAdminKeys(meta, String(body.password));
+  if (meta.fails || meta.lockUntil || keysAdded) { meta.fails = 0; meta.lockUntil = 0; await st.setJSON(metaKey(code), meta); }
   return json({ adminToken: await sign(st, { r: code, a: 1, v: meta.adminV || 0 }) });
 }
 

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Тайный Санта</title>
-<meta name="description" content="Жеребьёвка Тайного Санты для коллектива: каждый узнаёт только своего подопечного.">
+<meta name="description" content="Жеребьёвка Тайного Санты для коллектива.">
 <meta name="theme-color" content="#0d241e">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -83,6 +83,10 @@ button.gold:hover{background:#f5cd76}
 .people .n{flex:1;min-width:0;overflow-wrap:anywhere}
 .people .w{font-size:12px;color:var(--muted)}
 .people button{padding:6px 10px;font-size:13px}
+.pairs li{flex-wrap:wrap;gap:6px 10px}
+.pairs .arrow{color:var(--gold);font-weight:700}
+.pairs .g,.pairs .r{overflow-wrap:anywhere;min-width:0}
+.pairs .r{font-weight:700}
 .avatar{width:32px;height:32px;border-radius:50%;background:var(--pine-2);border:1px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:13px;color:var(--gold);flex:none}
 .steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--muted)}
 .steps b{color:var(--cream)}
@@ -123,8 +127,8 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
   <section id="v-home" hidden>
     <div style="display:flex;flex-direction:column;gap:20px">
       <div style="display:flex;flex-direction:column;gap:10px">
-        <h1>Кто кому дарит, знает только сам даритель</h1>
-        <p class="lead">Организатор создаёт игру, коллеги регистрируются по коду, а после жеребьёвки каждый видит только своего подопечного.</p>
+        <h1>Подарки по секрету для всего коллектива</h1>
+        <p class="lead">Организатор создаёт игру, коллеги регистрируются по коду, а после жеребьёвки каждый узнаёт, кому дарит.</p>
       </div>
       <form class="card tag" id="f-code">
         <label for="codeInput">Код игры
@@ -136,7 +140,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
       </form>
       <div class="card">
         <h3>Вы организатор?</h3>
-        <p class="muted small">Создайте игру, отправьте код в общий чат и проведите жеребьёвку, когда все зарегистрируются. Пары не увидите даже вы.</p>
+        <p class="muted small">Создайте игру, отправьте код в общий чат и проведите жеребьёвку, когда все зарегистрируются.</p>
         <button class="ghost" id="toCreate" type="button">Создать новую игру</button>
       </div>
     </div>
@@ -180,7 +184,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
             <label for="j-pin">Придумайте PIN<input id="j-pin" class="pin" inputmode="numeric" pattern="\d{4,8}" maxlength="8" autocomplete="new-password" placeholder="••••" required></label>
             <label for="j-pin2">Повторите PIN<input id="j-pin2" class="pin" inputmode="numeric" pattern="\d{4,8}" maxlength="8" autocomplete="new-password" placeholder="••••" required></label>
           </div>
-          <p class="muted small">PIN из 4–8 цифр. Запомните его: только по нему вы увидите, кому дарите. Восстановить PIN после жеребьёвки нельзя, даже организатору.</p>
+          <p class="muted small">PIN из 4–8 цифр. Запомните его: только по нему вы увидите, кому дарите. Если забудете, организатор поможет задать новый.</p>
           <div class="msg err" id="joinErr" hidden></div>
           <button type="submit">Участвовать</button>
         </form>
@@ -293,15 +297,39 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
         <div class="msg err" id="drawErr" hidden></div>
         <button type="button" id="drawBtn">Провести жеребьёвку</button>
         <div class="confirm" id="drawConfirm" hidden>
-          <p><b>Все на месте?</b> После жеребьёвки регистрация закроется. Пары не увидит никто, кроме самих дарителей.</p>
+          <p><b>Все на месте?</b> После жеребьёвки регистрация закроется. Каждый увидит только своего подопечного. Полный список сможете открыть только вы, по паролю организатора.</p>
           <div class="row"><button class="ghost" type="button" id="drawNo">Подождать</button><button type="button" id="drawYes">Да, провести</button></div>
         </div>
         <button type="button" class="ghost" id="undrawBtn" hidden>Перезапустить жеребьёвку</button>
         <div class="confirm" id="undrawConfirm" hidden>
-          <p>Текущие пары сотрутся, регистрация снова откроется. Потом проведите жеребьёвку заново, и всем нужно будет снова открыть свой подарок. Это нужно, если кто-то забыл PIN или кого-то надо добавить.</p>
+          <p>Текущие пары сотрутся, регистрация снова откроется. Потом проведите жеребьёвку заново, и всем нужно будет снова открыть свой подарок. Это нужно, если надо добавить или убрать человека. Если кто-то просто забыл PIN, перезапускать не нужно: задайте ему новый PIN ниже.</p>
           <div class="row"><button class="ghost" type="button" id="undrawNo">Отмена</button><button type="button" id="undrawYes">Перезапустить</button></div>
         </div>
       </div>
+
+      <form class="card" id="f-pairs" hidden>
+        <h3>Кто кому дарит</h3>
+        <p class="muted small">Видно только вам. Введите пароль организатора и убедитесь, что никто не смотрит в экран.</p>
+        <div id="pairsAsk" style="display:flex;flex-direction:column;gap:12px">
+          <label for="pr-pass">Пароль организатора<input id="pr-pass" type="password" autocomplete="current-password" required></label>
+          <button type="submit" class="gold">Показать пары</button>
+        </div>
+        <ul class="people pairs" id="pairsList" hidden></ul>
+        <button type="button" class="ghost" id="pairsHide" hidden>Скрыть</button>
+        <div class="msg err" id="pairsErr" hidden></div>
+      </form>
+
+      <form class="card" id="f-reset">
+        <h3>Участник забыл PIN</h3>
+        <p class="muted small">Задайте новый PIN и сообщите его человеку лично. Его подопечный не изменится.</p>
+        <label for="rp-who">Кто забыл<select id="rp-who" required></select></label>
+        <div class="row">
+          <label for="rp-pin">Новый PIN<input id="rp-pin" class="pin" inputmode="numeric" pattern="\d{4,8}" maxlength="8" autocomplete="off" placeholder="••••" required></label>
+          <label for="rp-pass">Ваш пароль<input id="rp-pass" type="password" autocomplete="current-password" required></label>
+        </div>
+        <div class="msg" id="resetMsg" hidden></div>
+        <button type="submit" class="ghost">Сменить PIN</button>
+      </form>
 
       <form class="card" id="f-settings">
         <h3>Настройки игры</h3>
@@ -488,7 +516,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
     const lines = ["🎅 Играем в Тайного Санту: «" + d.room.title + "»!"];
     if (d.room.budget) lines.push("Бюджет: " + d.room.budget);
     if (d.room.date) lines.push("Обмен подарками: " + d.room.date);
-    lines.push("", "1. Откройте ссылку: " + link, "2. Нажмите «Я новенький», впишите имя, пожелание и придумайте PIN.", "3. После жеребьёвки зайдите снова и узнайте, кому дарите.", "", "Код игры: " + d.room.code, "Кто кому дарит, не узнает никто, даже организатор 🤫");
+    lines.push("", "1. Откройте ссылку: " + link, "2. Нажмите «Я новенький», впишите имя, пожелание и придумайте PIN.", "3. После жеребьёвки зайдите снова и узнайте, кому дарите.", "", "Код игры: " + d.room.code, "Не рассказывайте никому, кто вам выпал 🤫");
     $("#ad-invite").value = lines.join("\n");
     text($("#ad-count"), String(d.people.length));
     const ul = $("#ad-people"); ul.replaceChildren();
@@ -512,6 +540,12 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
       ul.append(li);
     });
     $("#ad-empty").hidden = d.people.length > 0;
+    const who = $("#rp-who"); who.replaceChildren();
+    const w0 = document.createElement("option"); w0.value = ""; w0.textContent = "Выберите участника"; who.append(w0);
+    d.people.forEach((p) => { const o = document.createElement("option"); o.value = p.id; o.textContent = p.name; who.append(o); });
+    $("#f-reset").hidden = d.people.length === 0;
+    $("#f-pairs").hidden = !d.drawnAt;
+    hidePairs();
     const drawn = !!d.drawnAt;
     $("#drawBtn").hidden = drawn; $("#drawConfirm").hidden = true;
     $("#undrawBtn").hidden = !drawn; $("#undrawConfirm").hidden = true;
@@ -647,6 +681,42 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
         await api("/room/" + S.code + "/admin/settings", { method: "POST", token: ls.get(admKey()), body: { title: $("#s-title").value, budget: $("#s-budget").value, date: $("#s-date").value, note: $("#s-note").value } });
         await openAdmin(); msg($("#setMsg"), "Сохранено", "ok");
       } catch (err) { msg($("#setMsg"), err.message); }
+    });
+  };
+  function hidePairs() {
+    $("#pairsList").hidden = true; $("#pairsList").replaceChildren();
+    $("#pairsHide").hidden = true; $("#pairsAsk").hidden = false; msg($("#pairsErr"), "");
+  }
+  $("#pairsHide").onclick = hidePairs;
+  $("#f-pairs").onsubmit = (e) => {
+    e.preventDefault(); msg($("#pairsErr"), "");
+    busy(e.submitter, async () => {
+      try {
+        const d = await api("/room/" + S.code + "/admin/pairs", { method: "POST", token: ls.get(admKey()), body: { password: $("#pr-pass").value } });
+        $("#pr-pass").value = "";
+        const ul = $("#pairsList"); ul.replaceChildren();
+        d.pairs.sort((a, b) => a.giver.localeCompare(b.giver, "ru")).forEach((x) => {
+          const li = document.createElement("li");
+          const g = document.createElement("span"); g.className = "g"; g.textContent = x.giver;
+          const a = document.createElement("span"); a.className = "arrow"; a.textContent = "→ дарит →";
+          const r = document.createElement("span"); r.className = "r"; r.textContent = x.receiver;
+          li.append(g, a, r); ul.append(li);
+        });
+        ul.hidden = false; $("#pairsHide").hidden = false; $("#pairsAsk").hidden = true;
+      } catch (err) { msg($("#pairsErr"), err.message); }
+    });
+  };
+  $("#f-reset").onsubmit = (e) => {
+    e.preventDefault(); msg($("#resetMsg"), "");
+    if (!$("#rp-who").value) return msg($("#resetMsg"), "Выберите участника.");
+    if (!/^\d{4,8}$/.test($("#rp-pin").value)) return msg($("#resetMsg"), "PIN должен состоять из 4–8 цифр.");
+    busy(e.submitter, async () => {
+      try {
+        const name = $("#rp-who").selectedOptions[0].textContent, pin = $("#rp-pin").value;
+        await api("/room/" + S.code + "/admin/resetpin", { method: "POST", token: ls.get(admKey()), body: { id: $("#rp-who").value, pin, password: $("#rp-pass").value } });
+        $("#rp-pin").value = ""; $("#rp-pass").value = "";
+        msg($("#resetMsg"), "Готово. Новый PIN для " + name + ": " + pin + ". Сообщите его лично.", "ok");
+      } catch (err) { msg($("#resetMsg"), err.message); }
     });
   };
   $("#adminToRoom").onclick = () => openRoom(S.code);
