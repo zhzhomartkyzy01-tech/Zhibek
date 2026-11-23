@@ -156,6 +156,7 @@ async function listPeople(st, code) {
 }
 const publicRoom = (meta, people) => ({
   code: meta.code, title: meta.title, budget: meta.budget, date: meta.date, note: meta.note,
+  title_kk: meta.title_kk || "", note_kk: meta.note_kk || "",
   drawn: !!meta.drawnAt, count: people.length,
   names: people.map((p) => p.name).sort((a, b) => a.localeCompare(b, "ru")),
 });
@@ -165,6 +166,8 @@ function roomSettings(body) {
     budget: clean(body.budget, 40),
     date: clean(body.date, 40),
     note: clean(body.note, 300),
+    title_kk: clean(body.title_kk, 80),
+    note_kk: clean(body.note_kk, 300),
   };
 }
 
