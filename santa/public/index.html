@@ -34,6 +34,11 @@ h1{font-size:clamp(30px,8vw,40px);font-weight:800;letter-spacing:-.01em}
 h2{font-size:22px;font-weight:700}
 h3{font-size:16px;font-weight:700}
 p{margin:0}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.lang{display:flex;background:var(--pine-2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.lang button{background:transparent;color:var(--muted);padding:7px 12px;border-radius:999px;font-size:13px;letter-spacing:.06em}
+.lang button:hover{background:var(--card);color:var(--cream)}
+.lang button[aria-pressed="true"]{background:var(--gold);color:#2a1d05}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
 .brand .plate{flex:none;background:var(--plate);border-radius:12px;padding:8px 12px;display:flex}
 .brand .plate img{height:64px;width:auto;display:block}
@@ -120,31 +125,37 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
 <body>
 <canvas id="snow" aria-hidden="true"></canvas>
 <main>
-  <a class="brand" href="./" id="homeLink" aria-label="На главную Тайного Санты">
-    <span class="plate"><img src="zhebe-logo.svg" alt="Zhebe Logistics" width="88" height="64"></span>
-    <span class="sep" aria-hidden="true"></span>
-    <span>ТАЙНЫЙ<br>САНТА</span>
-  </a>
+  <header class="top">
+    <a class="brand" href="./" id="homeLink" data-i18n-aria="brand_aria" aria-label="На главную Тайного Санты">
+      <span class="plate"><img src="zhebe-logo.svg" alt="Zhebe Logistics" width="88" height="64"></span>
+      <span class="sep" aria-hidden="true"></span>
+      <span><span data-i18n-html="brand">ТАЙНЫЙ<br>САНТА</span></span>
+    </a>
+    <div class="lang" role="group" data-i18n-aria="lang_aria" aria-label="Язык">
+      <button type="button" data-lang="kk" lang="kk" aria-pressed="false">ҚАЗ</button>
+      <button type="button" data-lang="ru" lang="ru" aria-pressed="true">РУС</button>
+    </div>
+  </header>
 
   <!-- ГЛАВНАЯ -->
   <section id="v-home" hidden>
     <div style="display:flex;flex-direction:column;gap:20px">
       <div style="display:flex;flex-direction:column;gap:10px">
-        <h1>Подарки по секрету для всего коллектива</h1>
-        <p class="lead">Организатор создаёт игру, коллеги регистрируются по коду, а после жеребьёвки каждый узнаёт, кому дарит.</p>
+        <h1><span data-i18n="home_h1">Подарки по секрету для всего коллектива</span></h1>
+        <p class="lead"><span data-i18n="home_lead">Организатор создаёт игру, коллеги регистрируются по коду, а после жеребьёвки каждый узнаёт, кому дарит.</span></p>
       </div>
       <form class="card tag" id="f-code">
-        <label for="codeInput">Код игры
-          <span class="hint">Его пришлёт организатор. 6 букв и цифр.</span>
+        <label for="codeInput"><span data-i18n="code_label">Код игры</span>
+          <span class="hint"><span data-i18n="code_hint">Его пришлёт организатор. 6 букв и цифр.</span></span>
         </label>
         <input id="codeInput" class="code" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="K7M2QX" required>
         <div class="msg err" id="codeErr" hidden></div>
-        <button type="submit">Войти в игру</button>
+        <button type="submit"><span data-i18n="code_btn">Войти в игру</span></button>
       </form>
       <div class="card">
-        <h3>Вы организатор?</h3>
-        <p class="muted small">Создайте игру, отправьте код в общий чат и проведите жеребьёвку, когда все зарегистрируются.</p>
-        <button class="ghost" id="toCreate" type="button">Создать новую игру</button>
+        <h3><span data-i18n="org_q">Вы организатор?</span></h3>
+        <p class="muted small"><span data-i18n="org_p">Создайте игру, отправьте код в общий чат и проведите жеребьёвку, когда все зарегистрируются.</span></p>
+        <button class="ghost" id="toCreate" type="button"><span data-i18n="to_create">Создать новую игру</span></button>
       </div>
     </div>
   </section>
@@ -152,19 +163,19 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
   <!-- СОЗДАНИЕ -->
   <section id="v-create" hidden>
     <form class="card" id="f-create">
-      <div><span class="eyebrow">Новая игра</span><h2 style="margin-top:6px">Настройте обмен подарками</h2></div>
-      <label for="c-title">Название<input id="c-title" maxlength="80" placeholder="Новый год 2027 в отделе продаж" required></label>
+      <div><span class="eyebrow"><span data-i18n="create_eb">Новая игра</span></span><h2 style="margin-top:6px"><span data-i18n="create_h">Настройте обмен подарками</span></h2></div>
+      <label for="c-title"><span data-i18n="f_title">Название</span><input id="c-title" maxlength="80" data-i18n-ph="ph_title" placeholder="Новый год 2027 в отделе продаж" required></label>
       <div class="row">
-        <label for="c-budget">Бюджет<input id="c-budget" maxlength="40" placeholder="до 10 000 ₸"></label>
-        <label for="c-date">Дата обмена<input id="c-date" maxlength="40" placeholder="27 декабря"></label>
+        <label for="c-budget"><span data-i18n="f_budget">Бюджет</span><input id="c-budget" maxlength="40" data-i18n-ph="ph_budget" placeholder="до 10 000 ₸"></label>
+        <label for="c-date"><span data-i18n="f_date">Дата обмена</span><input id="c-date" maxlength="40" data-i18n-ph="ph_date" placeholder="27 декабря"></label>
       </div>
-      <label for="c-note">Правила или комментарий <span class="hint">Необязательно</span>
-        <textarea id="c-note" maxlength="300" placeholder="Дарим на корпоративе. Подпись на подарке не ставим!"></textarea></label>
-      <label for="c-pass">Пароль организатора
-        <span class="hint">Нужен, чтобы зайти в панель и провести жеребьёвку. Не короче 6 символов.</span>
+      <label for="c-note"><span data-i18n="f_note">Правила или комментарий</span> <span class="hint"><span data-i18n="optional">Необязательно</span></span>
+        <textarea id="c-note" maxlength="300" data-i18n-ph="ph_note" placeholder="Дарим на корпоративе. Подпись на подарке не ставим!"></textarea></label>
+      <label for="c-pass"><span data-i18n="f_orgpass">Пароль организатора</span>
+        <span class="hint"><span data-i18n="orgpass_hint">Нужен, чтобы зайти в панель и провести жеребьёвку. Не короче 6 символов.</span></span>
         <input id="c-pass" type="password" minlength="6" autocomplete="new-password" required></label>
       <div class="msg err" id="createErr" hidden></div>
-      <div class="row"><button class="ghost" type="button" data-go="home">Назад</button><button type="submit">Создать игру</button></div>
+      <div class="row"><button class="ghost" type="button" data-go="home"><span data-i18n="back">Назад</span></button><button type="submit"><span data-i18n="create_btn">Создать игру</span></button></div>
     </form>
   </section>
 
@@ -174,31 +185,31 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
       <div class="roomhead" style="display:flex;flex-direction:column;gap:10px"></div>
       <div class="card tag">
         <div class="tabs" role="tablist">
-          <button type="button" role="tab" id="tab-join" aria-selected="true">Я новенький</button>
-          <button type="button" role="tab" id="tab-login" aria-selected="false">Я уже участвую</button>
+          <button type="button" role="tab" id="tab-join" aria-selected="true"><span data-i18n="tab_join">Я новенький</span></button>
+          <button type="button" role="tab" id="tab-login" aria-selected="false"><span data-i18n="tab_login">Я уже участвую</span></button>
         </div>
         <form id="f-join" style="display:flex;flex-direction:column;gap:14px">
-          <p class="msg err" id="joinClosed" hidden>Жеребьёвка уже прошла, новых участников не принимаем. Если вы зарегистрированы, войдите на вкладке «Я уже участвую».</p>
-          <label for="j-name">Ваше имя <span class="hint">Так вас увидит Санта. Лучше с фамилией, если есть тёзки.</span>
+          <p class="msg err" id="joinClosed" hidden><span data-i18n="join_closed">Жеребьёвка уже прошла, новых участников не принимаем. Если вы зарегистрированы, войдите на вкладке «Я уже участвую».</span></p>
+          <label for="j-name"><span data-i18n="f_name">Ваше имя</span> <span class="hint"><span data-i18n="name_hint">Так вас увидит Санта. Лучше с фамилией, если есть тёзки.</span></span>
             <input id="j-name" maxlength="60" autocomplete="name" placeholder="Айгерим Сапарова" required></label>
-          <label for="j-wish">Пожелание к подарку <span class="hint">Что любите, что не дарить, размер. Можно изменить позже.</span>
-            <textarea id="j-wish" maxlength="600" placeholder="Люблю кофе и настолки. Пожалуйста, без сладкого."></textarea></label>
+          <label for="j-wish"><span data-i18n="f_wish">Пожелание к подарку</span> <span class="hint"><span data-i18n="wish_hint">Что любите, что не дарить, размер. Можно изменить позже.</span></span>
+            <textarea id="j-wish" maxlength="600" data-i18n-ph="ph_wish" placeholder="Люблю кофе и настолки. Пожалуйста, без сладкого."></textarea></label>
           <div class="row">
-            <label for="j-pin">Придумайте PIN<input id="j-pin" class="pin" inputmode="numeric" pattern="\d{4,8}" maxlength="8" autocomplete="new-password" placeholder="••••" required></label>
-            <label for="j-pin2">Повторите PIN<input id="j-pin2" class="pin" inputmode="numeric" pattern="\d{4,8}" maxlength="8" autocomplete="new-password" placeholder="••••" required></label>
+            <label for="j-pin"><span data-i18n="f_pin_new">Придумайте PIN</span><input id="j-pin" class="pin" inputmode="numeric" pattern="\d{4,8}" maxlength="8" autocomplete="new-password" placeholder="••••" required></label>
+            <label for="j-pin2"><span data-i18n="f_pin_rep">Повторите PIN</span><input id="j-pin2" class="pin" inputmode="numeric" pattern="\d{4,8}" maxlength="8" autocomplete="new-password" placeholder="••••" required></label>
           </div>
-          <p class="muted small">PIN из 4–8 цифр. Запомните его: только по нему вы увидите, кому дарите. Если забудете, организатор поможет задать новый.</p>
+          <p class="muted small"><span data-i18n="pin_note">PIN из 4–8 цифр. Запомните его: только по нему вы увидите, кому дарите. Если забудете, организатор поможет задать новый.</span></p>
           <div class="msg err" id="joinErr" hidden></div>
-          <button type="submit">Участвовать</button>
+          <button type="submit"><span data-i18n="join_btn">Участвовать</span></button>
         </form>
         <form id="f-login" hidden style="display:flex;flex-direction:column;gap:14px">
-          <label for="l-name">Ваше имя<select id="l-name" required></select></label>
+          <label for="l-name"><span data-i18n="f_name">Ваше имя</span><select id="l-name" required></select></label>
           <label for="l-pin">PIN<input id="l-pin" class="pin" inputmode="numeric" maxlength="8" autocomplete="current-password" placeholder="••••" required></label>
           <div class="msg err" id="loginErr" hidden></div>
-          <button type="submit">Войти</button>
+          <button type="submit"><span data-i18n="login_btn">Войти</span></button>
         </form>
       </div>
-      <footer><button class="link" type="button" id="toAdminLogin">Я организатор этой игры</button></footer>
+      <footer><button class="link" type="button" id="toAdminLogin"><span data-i18n="to_admin_login">Я организатор этой игры</span></button></footer>
     </div>
   </section>
 
@@ -208,52 +219,52 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
       <div class="roomhead" style="display:flex;flex-direction:column;gap:10px"></div>
 
       <div class="card tag" id="me-wait" hidden>
-        <span class="eyebrow">Вы в игре</span>
+        <span class="eyebrow"><span data-i18n="me_eb">Вы в игре</span></span>
         <h2 id="me-hello"></h2>
-        <p class="muted">Ждём, пока зарегистрируются остальные. Организатор проведёт жеребьёвку, и здесь появится коробка с именем вашего подопечного.</p>
-        <p class="muted small">Зайдите позже по той же ссылке. Мы вас запомнили на этом устройстве.</p>
-        <button class="ghost" type="button" id="refreshBtn">Проверить, прошла ли жеребьёвка</button>
+        <p class="muted"><span data-i18n="me_wait">Ждём, пока зарегистрируются остальные. Организатор проведёт жеребьёвку, и здесь появится коробка с именем вашего подопечного.</span></p>
+        <p class="muted small"><span data-i18n="me_later">Зайдите позже по той же ссылке. Мы вас запомнили на этом устройстве.</span></p>
+        <button class="ghost" type="button" id="refreshBtn"><span data-i18n="refresh">Проверить, прошла ли жеребьёвка</span></button>
       </div>
 
       <form class="card tag" id="me-pin" hidden style="gap:14px">
-        <span class="eyebrow">Жеребьёвка прошла</span>
-        <h2>Введите PIN, чтобы открыть подарок</h2>
+        <span class="eyebrow"><span data-i18n="drawn_eb">Жеребьёвка прошла</span></span>
+        <h2><span data-i18n="pin_h">Введите PIN, чтобы открыть подарок</span></h2>
         <label for="mp-pin">PIN<input id="mp-pin" class="pin" inputmode="numeric" maxlength="8" autocomplete="current-password" placeholder="••••" required></label>
         <div class="msg err" id="mpErr" hidden></div>
-        <button type="submit">Узнать, кому я дарю</button>
+        <button type="submit"><span data-i18n="pin_btn">Узнать, кому я дарю</span></button>
       </form>
 
       <div class="card tag" id="me-gift" hidden>
         <div class="gift-wrap" id="giftWrap">
-          <button class="gift" type="button" id="giftBtn" aria-label="Открыть подарок">
+          <button class="gift" type="button" id="giftBtn" data-i18n-aria="gift_aria" aria-label="Открыть подарок">
             <span class="box"><span class="rib-v"></span></span>
             <span class="lid"><span class="rib-v"></span><span class="bow"></span></span>
           </button>
-          <p class="muted" id="giftHint">Нажмите на коробку. Убедитесь, что никто не смотрит в экран 👀</p>
+          <p class="muted" id="giftHint"><span data-i18n="gift_hint">Нажмите на коробку. Убедитесь, что никто не смотрит в экран 👀</span></p>
         </div>
         <div class="reveal" id="reveal" hidden>
-          <span class="eyebrow">Вы Тайный Санта для</span>
+          <span class="eyebrow"><span data-i18n="rv_eb">Вы Тайный Санта для</span></span>
           <div class="who" id="rv-name"></div>
           <div class="wishbox" id="rv-wish"></div>
-          <p class="muted small">Пожелание обновляется, если подопечный его изменит. Не рассказывайте никому, кто вам выпал!</p>
-          <button class="ghost" type="button" id="hideBtn">Спрятать</button>
+          <p class="muted small"><span data-i18n="rv_note">Пожелание обновляется, если подопечный его изменит. Не рассказывайте никому, кто вам выпал!</span></p>
+          <button class="ghost" type="button" id="hideBtn"><span data-i18n="hide">Спрятать</span></button>
         </div>
       </div>
 
       <form class="card" id="f-wish">
-        <h3>Моё пожелание для моего Санты</h3>
-        <textarea id="w-wish" maxlength="600" aria-label="Моё пожелание"></textarea>
+        <h3><span data-i18n="mywish_h">Моё пожелание для моего Санты</span></h3>
+        <textarea id="w-wish" maxlength="600" data-i18n-aria="mywish_aria" aria-label="Моё пожелание"></textarea>
         <div class="msg" id="wishMsg" hidden></div>
-        <button class="ghost" type="submit">Сохранить пожелание</button>
+        <button class="ghost" type="submit"><span data-i18n="save_wish">Сохранить пожелание</span></button>
       </form>
 
       <footer class="row" style="justify-content:center;flex-wrap:wrap;gap:18px">
-        <button class="link" type="button" id="logoutBtn">Выйти на этом устройстве</button>
-        <button class="link" type="button" id="leaveBtn">Выйти из игры</button>
+        <button class="link" type="button" id="logoutBtn"><span data-i18n="logout">Выйти на этом устройстве</span></button>
+        <button class="link" type="button" id="leaveBtn"><span data-i18n="leave">Выйти из игры</span></button>
       </footer>
       <div class="confirm" id="leaveConfirm" hidden>
-        <p>Удалить вас из игры? Пожелание и PIN сотрутся.</p>
-        <div class="row"><button class="ghost" type="button" id="leaveNo">Отмена</button><button type="button" id="leaveYes">Да, выйти</button></div>
+        <p><span data-i18n="leave_q">Удалить вас из игры? Пожелание и PIN сотрутся.</span></p>
+        <div class="row"><button class="ghost" type="button" id="leaveNo"><span data-i18n="cancel">Отмена</span></button><button type="button" id="leaveYes"><span data-i18n="leave_yes">Да, выйти</span></button></div>
       </div>
     </div>
   </section>
@@ -261,11 +272,11 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
   <!-- ВХОД ОРГАНИЗАТОРА -->
   <section id="v-adminlogin" hidden>
     <form class="card" id="f-admin">
-      <span class="eyebrow">Панель организатора</span>
+      <span class="eyebrow"><span data-i18n="admin_eb">Панель организатора</span></span>
       <h2 class="al-title"></h2>
-      <label for="a-pass">Пароль организатора<input id="a-pass" type="password" autocomplete="current-password" required></label>
+      <label for="a-pass"><span data-i18n="f_orgpass">Пароль организатора</span><input id="a-pass" type="password" autocomplete="current-password" required></label>
       <div class="msg err" id="adminErr" hidden></div>
-      <div class="row"><button class="ghost" type="button" data-go="room">Назад</button><button type="submit">Войти</button></div>
+      <div class="row"><button class="ghost" type="button" data-go="room"><span data-i18n="back">Назад</span></button><button type="submit"><span data-i18n="login_btn">Войти</span></button></div>
     </form>
   </section>
 
@@ -275,79 +286,80 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
       <div class="roomhead" style="display:flex;flex-direction:column;gap:10px"></div>
 
       <div class="card" id="ad-created" hidden>
-        <span class="eyebrow">Игра создана</span>
+        <span class="eyebrow"><span data-i18n="created_eb">Игра создана</span></span>
         <div class="bigcode" id="ad-code"></div>
         <ol class="steps">
-          <li><b>Отправьте сообщение ниже</b> в общий чат коллектива.</li>
-          <li>Каждый откроет ссылку, впишет имя, пожелание и свой PIN.</li>
-          <li>Когда все зарегистрируются, нажмите <b>«Провести жеребьёвку»</b>.</li>
+          <li><span data-i18n-html="step1"><b>Отправьте сообщение ниже</b> в общий чат коллектива.</span></li>
+          <li><span data-i18n="step2">Каждый откроет ссылку, впишет имя, пожелание и свой PIN.</span></li>
+          <li><span data-i18n-html="step3">Когда все зарегистрируются, нажмите <b>«Провести жеребьёвку»</b>.</span></li>
         </ol>
       </div>
 
       <div class="card">
-        <h3>Приглашение для чата</h3>
+        <h3><span data-i18n="invite_h">Приглашение для чата</span></h3>
+        <p class="muted small"><span data-i18n="invite_note">Приглашение сразу на двух языках: казахском и русском.</span></p>
         <textarea id="ad-invite" readonly style="min-height:150px"></textarea>
-        <button type="button" class="gold" id="copyInvite">Скопировать приглашение</button>
-        <div class="copybox"><input id="ad-link" readonly aria-label="Ссылка на игру"><button type="button" class="ghost" id="copyLink">Ссылка</button></div>
-        <div class="msg ok" id="copyMsg" hidden>Скопировано</div>
+        <button type="button" class="gold" id="copyInvite"><span data-i18n="copy_invite">Скопировать приглашение</span></button>
+        <div class="copybox"><input id="ad-link" readonly data-i18n-aria="link_aria" aria-label="Ссылка на игру"><button type="button" class="ghost" id="copyLink"><span data-i18n="link_btn">Ссылка</span></button></div>
+        <div class="msg ok" id="copyMsg" hidden><span data-i18n="copied">Скопировано</span></div>
       </div>
 
       <div class="card">
-        <div class="row" style="align-items:center"><h3>Участники</h3><span class="chip" style="flex:none"><b id="ad-count">0</b> чел.</span></div>
+        <div class="row" style="align-items:center"><h3><span data-i18n="people_h">Участники</span></h3><span class="chip" style="flex:none"><b id="ad-count">0</b> <span data-i18n="ppl">чел.</span></span></div>
         <p class="muted small" id="ad-drawnNote"></p>
         <ul class="people" id="ad-people"></ul>
-        <p class="muted small" id="ad-empty">Пока никто не зарегистрировался. Отправьте приглашение в чат.</p>
+        <p class="muted small" id="ad-empty"><span data-i18n="ad_empty">Пока никто не зарегистрировался. Отправьте приглашение в чат.</span></p>
         <div class="msg err" id="drawErr" hidden></div>
-        <button type="button" id="drawBtn">Провести жеребьёвку</button>
+        <button type="button" id="drawBtn"><span data-i18n="draw_btn">Провести жеребьёвку</span></button>
         <div class="confirm" id="drawConfirm" hidden>
-          <p><b>Все на месте?</b> После жеребьёвки регистрация закроется. Каждый увидит только своего подопечного. Полный список сможете открыть только вы, по паролю организатора.</p>
-          <div class="row"><button class="ghost" type="button" id="drawNo">Подождать</button><button type="button" id="drawYes">Да, провести</button></div>
+          <p><span data-i18n-html="draw_q"><b>Все на месте?</b> После жеребьёвки регистрация закроется. Каждый увидит только своего подопечного. Полный список сможете открыть только вы, по паролю организатора.</span></p>
+          <div class="row"><button class="ghost" type="button" id="drawNo"><span data-i18n="wait">Подождать</span></button><button type="button" id="drawYes"><span data-i18n="draw_yes">Да, провести</span></button></div>
         </div>
-        <button type="button" class="ghost" id="undrawBtn" hidden>Перезапустить жеребьёвку</button>
+        <button type="button" class="ghost" id="undrawBtn" hidden><span data-i18n="undraw_btn">Перезапустить жеребьёвку</span></button>
         <div class="confirm" id="undrawConfirm" hidden>
-          <p>Текущие пары сотрутся, регистрация снова откроется. Потом проведите жеребьёвку заново, и всем нужно будет снова открыть свой подарок. Это нужно, если надо добавить или убрать человека. Если кто-то просто забыл PIN, перезапускать не нужно: задайте ему новый PIN ниже.</p>
-          <div class="row"><button class="ghost" type="button" id="undrawNo">Отмена</button><button type="button" id="undrawYes">Перезапустить</button></div>
+          <p><span data-i18n="undraw_q">Текущие пары сотрутся, регистрация снова откроется. Потом проведите жеребьёвку заново, и всем нужно будет снова открыть свой подарок. Это нужно, если надо добавить или убрать человека. Если кто-то просто забыл PIN, перезапускать не нужно: задайте ему новый PIN ниже.</span></p>
+          <div class="row"><button class="ghost" type="button" id="undrawNo"><span data-i18n="cancel">Отмена</span></button><button type="button" id="undrawYes"><span data-i18n="undraw_yes">Перезапустить</span></button></div>
         </div>
       </div>
 
       <form class="card" id="f-pairs" hidden>
-        <h3>Кто кому дарит</h3>
-        <p class="muted small">Видно только вам. Введите пароль организатора и убедитесь, что никто не смотрит в экран.</p>
+        <h3><span data-i18n="pairs_h">Кто кому дарит</span></h3>
+        <p class="muted small"><span data-i18n="pairs_note">Видно только вам. Введите пароль организатора и убедитесь, что никто не смотрит в экран.</span></p>
         <div id="pairsAsk" style="display:flex;flex-direction:column;gap:12px">
-          <label for="pr-pass">Пароль организатора<input id="pr-pass" type="password" autocomplete="current-password" required></label>
-          <button type="submit" class="gold">Показать пары</button>
+          <label for="pr-pass"><span data-i18n="f_orgpass">Пароль организатора</span><input id="pr-pass" type="password" autocomplete="current-password" required></label>
+          <button type="submit" class="gold"><span data-i18n="show_pairs">Показать пары</span></button>
         </div>
         <ul class="people pairs" id="pairsList" hidden></ul>
-        <button type="button" class="ghost" id="pairsHide" hidden>Скрыть</button>
+        <button type="button" class="ghost" id="pairsHide" hidden><span data-i18n="hide2">Скрыть</span></button>
         <div class="msg err" id="pairsErr" hidden></div>
       </form>
 
       <form class="card" id="f-reset">
-        <h3>Участник забыл PIN</h3>
-        <p class="muted small">Задайте новый PIN и сообщите его человеку лично. Его подопечный не изменится.</p>
-        <label for="rp-who">Кто забыл<select id="rp-who" required></select></label>
+        <h3><span data-i18n="reset_h">Участник забыл PIN</span></h3>
+        <p class="muted small"><span data-i18n="reset_note">Задайте новый PIN и сообщите его человеку лично. Его подопечный не изменится.</span></p>
+        <label for="rp-who"><span data-i18n="who_forgot">Кто забыл</span><select id="rp-who" required></select></label>
         <div class="row">
-          <label for="rp-pin">Новый PIN<input id="rp-pin" class="pin" inputmode="numeric" pattern="\d{4,8}" maxlength="8" autocomplete="off" placeholder="••••" required></label>
-          <label for="rp-pass">Ваш пароль<input id="rp-pass" type="password" autocomplete="current-password" required></label>
+          <label for="rp-pin"><span data-i18n="new_pin">Новый PIN</span><input id="rp-pin" class="pin" inputmode="numeric" pattern="\d{4,8}" maxlength="8" autocomplete="off" placeholder="••••" required></label>
+          <label for="rp-pass"><span data-i18n="your_pass">Ваш пароль</span><input id="rp-pass" type="password" autocomplete="current-password" required></label>
         </div>
         <div class="msg" id="resetMsg" hidden></div>
-        <button type="submit" class="ghost">Сменить PIN</button>
+        <button type="submit" class="ghost"><span data-i18n="change_pin">Сменить PIN</span></button>
       </form>
 
       <form class="card" id="f-settings">
-        <h3>Настройки игры</h3>
-        <label for="s-title">Название<input id="s-title" maxlength="80" required></label>
+        <h3><span data-i18n="settings_h">Настройки игры</span></h3>
+        <label for="s-title"><span data-i18n="f_title">Название</span><input id="s-title" maxlength="80" required></label>
         <div class="row">
-          <label for="s-budget">Бюджет<input id="s-budget" maxlength="40"></label>
-          <label for="s-date">Дата обмена<input id="s-date" maxlength="40"></label>
+          <label for="s-budget"><span data-i18n="f_budget">Бюджет</span><input id="s-budget" maxlength="40"></label>
+          <label for="s-date"><span data-i18n="f_date">Дата обмена</span><input id="s-date" maxlength="40"></label>
         </div>
-        <label for="s-note">Правила или комментарий<textarea id="s-note" maxlength="300"></textarea></label>
+        <label for="s-note"><span data-i18n="f_note">Правила или комментарий</span><textarea id="s-note" maxlength="300"></textarea></label>
         <div class="msg" id="setMsg" hidden></div>
-        <button type="submit" class="ghost">Сохранить</button>
+        <button type="submit" class="ghost"><span data-i18n="save">Сохранить</span></button>
       </form>
 
-      <p class="muted small" style="text-align:center">Хотите участвовать сами? Откройте ссылку игры и зарегистрируйтесь как все.<br>
-        <button class="link" type="button" id="adminToRoom">Перейти к регистрации</button> · <button class="link" type="button" id="adminLogout">Выйти из панели</button></p>
+      <p class="muted small" style="text-align:center"><span data-i18n="self_join">Хотите участвовать сами? Откройте ссылку игры и зарегистрируйтесь как все.</span><br>
+        <button class="link" type="button" id="adminToRoom"><span data-i18n="to_reg">Перейти к регистрации</span></button> · <button class="link" type="button" id="adminLogout"><span data-i18n="admin_logout">Выйти из панели</span></button></p>
     </div>
   </section>
 </main>
@@ -358,6 +370,24 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
   const API = "/santa-api";
   const views = ["home", "create", "room", "me", "adminlogin", "admin"];
   const S = { code: null, room: null, receiver: null };
+
+  // --- языки ---
+  const I18N = {"brand_aria": ["На главную Тайного Санты", "Жасырын Сантаның басты беті"], "brand": ["ТАЙНЫЙ<br>САНТА", "ЖАСЫРЫН<br>САНТА"], "lang_aria": ["Язык", "Тіл"], "home_h1": ["Подарки по секрету для всего коллектива", "Бүкіл ұжымға арналған құпия сыйлықтар"], "home_lead": ["Организатор создаёт игру, коллеги регистрируются по коду, а после жеребьёвки каждый узнаёт, кому дарит.", "Ұйымдастырушы ойын ашады, әріптестер код арқылы тіркеледі, ал жеребеден кейін әркім кімге сыйлық беретінін біледі."], "code_label": ["Код игры", "Ойын коды"], "code_hint": ["Его пришлёт организатор. 6 букв и цифр.", "Оны ұйымдастырушы жібереді. 6 әріп пен цифр."], "code_btn": ["Войти в игру", "Ойынға кіру"], "org_q": ["Вы организатор?", "Сіз ұйымдастырушысыз ба?"], "org_p": ["Создайте игру, отправьте код в общий чат и проведите жеребьёвку, когда все зарегистрируются.", "Ойын ашыңыз, кодты ортақ чатқа жіберіңіз де, бәрі тіркелген соң жеребе тартыңыз."], "to_create": ["Создать новую игру", "Жаңа ойын ашу"], "create_eb": ["Новая игра", "Жаңа ойын"], "create_h": ["Настройте обмен подарками", "Сыйлық алмасуды баптаңыз"], "f_title": ["Название", "Атауы"], "ph_title": ["Новый год 2027 в отделе продаж", "Сату бөліміндегі Жаңа жыл 2027"], "f_budget": ["Бюджет", "Бюджет"], "ph_budget": ["до 10 000 ₸", "10 000 ₸ дейін"], "f_date": ["Дата обмена", "Алмасу күні"], "ph_date": ["27 декабря", "27 желтоқсан"], "f_note": ["Правила или комментарий", "Ережелер немесе түсініктеме"], "optional": ["Необязательно", "Міндетті емес"], "ph_note": ["Дарим на корпоративе. Подпись на подарке не ставим!", "Сыйлықты корпоративте береміз. Сыйлыққа қол қоймаймыз!"], "f_orgpass": ["Пароль организатора", "Ұйымдастырушы құпиясөзі"], "orgpass_hint": ["Нужен, чтобы зайти в панель и провести жеребьёвку. Не короче 6 символов.", "Панельге кіріп, жеребе тарту үшін керек. Кемінде 6 таңба."], "back": ["Назад", "Артқа"], "create_btn": ["Создать игру", "Ойын ашу"], "tab_join": ["Я новенький", "Тіркелу"], "tab_login": ["Я уже участвую", "Мен қатысып жүрмін"], "join_closed": ["Жеребьёвка уже прошла, новых участников не принимаем. Если вы зарегистрированы, войдите на вкладке «Я уже участвую».", "Жеребе тартылып қойды, жаңа қатысушылар қабылданбайды. Тіркелген болсаңыз, «Мен қатысып жүрмін» бөлімінен кіріңіз."], "f_name": ["Ваше имя", "Атыңыз"], "name_hint": ["Так вас увидит Санта. Лучше с фамилией, если есть тёзки.", "Санта сізді осылай көреді. Аттас адамдар болса, тегіңізді де жазыңыз."], "f_wish": ["Пожелание к подарку", "Сыйлыққа тілек"], "wish_hint": ["Что любите, что не дарить, размер. Можно изменить позже.", "Не ұнайды, нені сыйламау керек, өлшеміңіз. Кейін өзгертуге болады."], "ph_wish": ["Люблю кофе и настолки. Пожалуйста, без сладкого.", "Кофе мен үстел ойындарын жақсы көремін. Тәттісіз болсын."], "f_pin_new": ["Придумайте PIN", "PIN ойлап табыңыз"], "f_pin_rep": ["Повторите PIN", "PIN-ді қайталаңыз"], "pin_note": ["PIN из 4–8 цифр. Запомните его: только по нему вы увидите, кому дарите. Если забудете, организатор поможет задать новый.", "PIN 4–8 цифрдан тұрады. Оны есте сақтаңыз: кімге сыйлық беретініңізді тек сол арқылы көресіз. Ұмытып қалсаңыз, ұйымдастырушы жаңасын қоюға көмектеседі."], "join_btn": ["Участвовать", "Қатысу"], "login_btn": ["Войти", "Кіру"], "to_admin_login": ["Я организатор этой игры", "Мен осы ойынның ұйымдастырушысымын"], "me_eb": ["Вы в игре", "Сіз ойындасыз"], "me_wait": ["Ждём, пока зарегистрируются остальные. Организатор проведёт жеребьёвку, и здесь появится коробка с именем вашего подопечного.", "Басқалардың тіркелуін күтеміз. Ұйымдастырушы жеребе тартқан соң, мұнда сыйлық алатын адамның аты жазылған қорап пайда болады."], "me_later": ["Зайдите позже по той же ссылке. Мы вас запомнили на этом устройстве.", "Кейін осы сілтеме арқылы кіріңіз. Біз сізді осы құрылғыда есте сақтадық."], "refresh": ["Проверить, прошла ли жеребьёвка", "Жеребе тартылды ма, тексеру"], "drawn_eb": ["Жеребьёвка прошла", "Жеребе тартылды"], "pin_h": ["Введите PIN, чтобы открыть подарок", "Сыйлықты ашу үшін PIN енгізіңіз"], "pin_btn": ["Узнать, кому я дарю", "Кімге сыйлық беретінімді білу"], "gift_aria": ["Открыть подарок", "Сыйлықты ашу"], "gift_hint": ["Нажмите на коробку. Убедитесь, что никто не смотрит в экран 👀", "Қорапты басыңыз. Экранға ешкім қарап тұрмағанына көз жеткізіңіз 👀"], "rv_eb": ["Вы Тайный Санта для", "Сіз мына адамның Жасырын Сантасысыз"], "rv_note": ["Пожелание обновляется, если подопечный его изменит. Не рассказывайте никому, кто вам выпал!", "Ол тілегін өзгертсе, мұнда да жаңарады. Кім түскенін ешкімге айтпаңыз!"], "hide": ["Спрятать", "Жасыру"], "mywish_h": ["Моё пожелание для моего Санты", "Менің Сантама тілегім"], "mywish_aria": ["Моё пожелание", "Менің тілегім"], "save_wish": ["Сохранить пожелание", "Тілекті сақтау"], "logout": ["Выйти на этом устройстве", "Осы құрылғыдан шығу"], "leave": ["Выйти из игры", "Ойыннан шығу"], "leave_q": ["Удалить вас из игры? Пожелание и PIN сотрутся.", "Сізді ойыннан шығарайық па? Тілегіңіз бен PIN өшіріледі."], "cancel": ["Отмена", "Болдырмау"], "leave_yes": ["Да, выйти", "Иә, шығу"], "admin_eb": ["Панель организатора", "Ұйымдастырушы панелі"], "created_eb": ["Игра создана", "Ойын ашылды"], "step1": ["<b>Отправьте сообщение ниже</b> в общий чат коллектива.", "<b>Төмендегі хабарламаны</b> ұжымның ортақ чатына жіберіңіз."], "step2": ["Каждый откроет ссылку, впишет имя, пожелание и свой PIN.", "Әркім сілтемені ашып, атын, тілегін және PIN-ін жазады."], "step3": ["Когда все зарегистрируются, нажмите <b>«Провести жеребьёвку»</b>.", "Бәрі тіркелген соң, <b>«Жеребе тарту»</b> батырмасын басыңыз."], "invite_h": ["Приглашение для чата", "Чатқа шақыру"], "invite_note": ["Приглашение сразу на двух языках: казахском и русском.", "Шақыру бірден екі тілде: қазақша және орысша."], "copy_invite": ["Скопировать приглашение", "Шақыруды көшіру"], "link_aria": ["Ссылка на игру", "Ойын сілтемесі"], "link_btn": ["Ссылка", "Сілтеме"], "copied": ["Скопировано", "Көшірілді"], "people_h": ["Участники", "Қатысушылар"], "ppl": ["чел.", "адам"], "ad_empty": ["Пока никто не зарегистрировался. Отправьте приглашение в чат.", "Әзірге ешкім тіркелмеді. Шақыруды чатқа жіберіңіз."], "draw_btn": ["Провести жеребьёвку", "Жеребе тарту"], "draw_q": ["<b>Все на месте?</b> После жеребьёвки регистрация закроется. Каждый увидит только своего подопечного. Полный список сможете открыть только вы, по паролю организатора.", "<b>Бәрі жиналды ма?</b> Жеребеден кейін тіркеу жабылады. Әркім тек өзі сыйлық беретін адамды көреді. Толық тізімді ұйымдастырушы құпиясөзімен тек сіз ғана аша аласыз."], "wait": ["Подождать", "Күте тұру"], "draw_yes": ["Да, провести", "Иә, тарту"], "undraw_btn": ["Перезапустить жеребьёвку", "Жеребені қайта бастау"], "undraw_q": ["Текущие пары сотрутся, регистрация снова откроется. Потом проведите жеребьёвку заново, и всем нужно будет снова открыть свой подарок. Это нужно, если надо добавить или убрать человека. Если кто-то просто забыл PIN, перезапускать не нужно: задайте ему новый PIN ниже.", "Қазіргі жұптар өшіріледі, тіркеу қайта ашылады. Содан соң жеребені қайта тартыңыз, бәрі сыйлығын қайта ашуы керек болады. Бұл адам қосу немесе алып тастау керек болғанда қажет. Біреу тек PIN-ін ұмытса, қайта бастаудың қажеті жоқ: төменде оған жаңа PIN қойыңыз."], "undraw_yes": ["Перезапустить", "Қайта бастау"], "pairs_h": ["Кто кому дарит", "Кім кімге сыйлық береді"], "pairs_note": ["Видно только вам. Введите пароль организатора и убедитесь, что никто не смотрит в экран.", "Тек сізге көрінеді. Ұйымдастырушы құпиясөзін енгізіп, экранға ешкім қарамағанына көз жеткізіңіз."], "show_pairs": ["Показать пары", "Жұптарды көрсету"], "hide2": ["Скрыть", "Жасыру"], "reset_h": ["Участник забыл PIN", "Қатысушы PIN-ін ұмытты"], "reset_note": ["Задайте новый PIN и сообщите его человеку лично. Его подопечный не изменится.", "Жаңа PIN қойып, оны адамға жеке айтыңыз. Оның сыйлық беретін адамы өзгермейді."], "who_forgot": ["Кто забыл", "Кім ұмытты"], "new_pin": ["Новый PIN", "Жаңа PIN"], "your_pass": ["Ваш пароль", "Сіздің құпиясөзіңіз"], "change_pin": ["Сменить PIN", "PIN ауыстыру"], "settings_h": ["Настройки игры", "Ойын баптаулары"], "save": ["Сохранить", "Сақтау"], "self_join": ["Хотите участвовать сами? Откройте ссылку игры и зарегистрируйтесь как все.", "Өзіңіз де қатысқыңыз келе ме? Ойын сілтемесін ашып, бәрі сияқты тіркеліңіз."], "to_reg": ["Перейти к регистрации", "Тіркелуге өту"], "admin_logout": ["Выйти из панели", "Панельден шығу"], "no_net": ["Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.", "Сервермен байланыс жоқ. Интернетті тексеріп, қайталап көріңіз."], "oops": ["Что-то пошло не так. Попробуйте ещё раз.", "Бірдеңе дұрыс болмады. Қайталап көріңіз."], "game": ["Игра {c}", "Ойын {c}"], "chip_count": ["Участников", "Қатысушылар"], "chip_budget": ["Бюджет", "Бюджет"], "chip_date": ["Обмен", "Алмасу"], "chip_status": ["Статус", "Күйі"], "st_drawn": ["жеребьёвка прошла", "жеребе тартылды"], "st_reg": ["идёт регистрация", "тіркеу жүріп жатыр"], "site": ["Тайный Санта Zhebe", "Жасырын Санта Zhebe"], "pick_self": ["Выберите себя из списка", "Тізімнен өзіңізді таңдаңыз"], "nobody": ["Пока никого нет", "Әзірге ешкім жоқ"], "hello": ["Привет, {n}!", "Сәлем, {n}!"], "not_in": ["{n}, вас нет в этой жеребьёвке", "{n}, сіз бұл жеребеге қатыспайсыз"], "no_wish": ["Подопечный пока не написал пожелание. Загляните позже.", "Ол әлі тілек жазбаған. Кейінірек қараңыз."], "has_wish_s": ["пожелание написано", "тілек жазылған"], "no_wish_s": ["без пожелания", "тілек жоқ"], "remove": ["Убрать", "Алып тастау"], "remove_aria": ["Убрать {n}", "{n} алып тастау"], "sure": ["Точно?", "Сенімдісіз бе?"], "pick_member": ["Выберите участника", "Қатысушыны таңдаңыз"], "drawn_at": ["Жеребьёвка проведена {d}. Участники могут открыть свои подарки.", "Жеребе {d} тартылды. Қатысушылар сыйлықтарын аша алады."], "need3": ["Для жеребьёвки нужно минимум 3 человека.", "Жеребе үшін кемінде 3 адам керек."], "when_all": ["Когда все зарегистрируются, проведите жеребьёвку.", "Бәрі тіркелген соң, жеребе тартыңыз."], "pin_digits": ["PIN должен состоять из 4–8 цифр.", "PIN 4–8 цифрдан тұруы керек."], "pin_mismatch": ["PIN не совпадает. Введите одинаковый PIN в оба поля.", "PIN сәйкес келмейді. Екі өріске бірдей PIN енгізіңіз."], "pick_name": ["Выберите своё имя из списка.", "Тізімнен атыңызды таңдаңыз."], "wish_saved": ["Сохранено. Ваш Санта увидит новое пожелание.", "Сақталды. Сантаңыз жаңа тілекті көреді."], "saved": ["Сохранено", "Сақталды"], "gives": ["→ дарит →", "→ сыйлайды →"], "pick_member2": ["Выберите участника.", "Қатысушыны таңдаңыз."], "reset_ok": ["Готово. Новый PIN для {n}: {p}. Сообщите его лично.", "Дайын. {n} үшін жаңа PIN: {p}. Оны жеке айтыңыз."], "inv_title": ["🎅 Zhebe Logistics играет в Тайного Санту: «{t}»!", "🎅 Zhebe Logistics Жасырын Санта ойнайды: «{t}»!"], "inv_budget": ["Бюджет: {b}", "Бюджет: {b}"], "inv_date": ["Обмен подарками: {d}", "Сыйлық алмасу: {d}"], "inv_1": ["1. Откройте ссылку: {l}", "1. Сілтемені ашыңыз: {l}"], "inv_2": ["2. Нажмите «Я новенький», впишите имя, пожелание и придумайте PIN.", "2. «Тіркелу» батырмасын басып, атыңызды, тілегіңізді жазып, PIN ойлап табыңыз."], "inv_3": ["3. После жеребьёвки зайдите снова и узнайте, кому дарите.", "3. Жеребеден кейін қайта кіріп, кімге сыйлық беретініңізді біліңіз."], "inv_code": ["Код игры: {c}", "Ойын коды: {c}"], "inv_secret": ["Не рассказывайте никому, кто вам выпал 🤫", "Кім түскенін ешкімге айтпаңыз 🤫"]};
+  let LANG = (() => {
+    try { const v = localStorage.getItem("santa:lang"); if (v === "kk" || v === "ru") return v; } catch {}
+    return /^kk/i.test(navigator.language || "") ? "kk" : "ru";
+  })();
+  const tl = (lang, key, vars = {}) => (I18N[key]?.[lang === "kk" ? 1 : 0] ?? key).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
+  const t = (key, vars) => tl(LANG, key, vars);
+  function applyStatic() {
+    document.documentElement.lang = LANG;
+    document.querySelectorAll("[data-i18n]").forEach((el) => (el.textContent = t(el.dataset.i18n)));
+    document.querySelectorAll("[data-i18n-html]").forEach((el) => (el.innerHTML = t(el.dataset.i18nHtml)));
+    document.querySelectorAll("[data-i18n-ph]").forEach((el) => (el.placeholder = t(el.dataset.i18nPh)));
+    document.querySelectorAll("[data-i18n-aria]").forEach((el) => el.setAttribute("aria-label", t(el.dataset.i18nAria)));
+    document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === LANG)));
+    if (!S.room) document.title = t("site");
+  }
 
   // --- хранилище на устройстве ---
   const ls = {
@@ -375,11 +405,11 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
     try {
       res = await fetch(API + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
     } catch {
-      throw { message: "Нет связи с сервером. Проверьте интернет и попробуйте ещё раз." };
+      throw { message: t("no_net") };
     }
     let data = {};
     try { data = await res.json(); } catch {}
-    if (!res.ok) throw { status: res.status, ...data, message: data.message || "Что-то пошло не так. Попробуйте ещё раз." };
+    if (!res.ok) throw { status: res.status, ...data, message: (LANG === "kk" && data.message_kk) || data.message || t("oops") };
     return data;
   }
 
@@ -406,18 +436,18 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
   function renderRoomHead(room) {
     document.querySelectorAll(".roomhead").forEach((h) => {
       h.replaceChildren();
-      const eb = document.createElement("span"); eb.className = "eyebrow"; eb.textContent = "Игра " + room.code;
-      const t = document.createElement("h1"); t.textContent = room.title; t.style.fontSize = "clamp(26px,7vw,34px)";
+      const eb = document.createElement("span"); eb.className = "eyebrow"; eb.textContent = t("game", { c: room.code });
+      const ttl = document.createElement("h1"); ttl.textContent = room.title; ttl.style.fontSize = "clamp(26px,7vw,34px)";
       const f = document.createElement("div"); f.className = "facts";
       const chip = (label, val) => { const c = document.createElement("span"); c.className = "chip"; c.append(label + " "); const b = document.createElement("b"); b.textContent = val; c.append(b); f.append(c); };
-      chip("Участников", String(room.count));
-      if (room.budget) chip("Бюджет", room.budget);
-      if (room.date) chip("Обмен", room.date);
-      chip("Статус", room.drawn ? "жеребьёвка прошла" : "идёт регистрация");
-      h.append(eb, t, f);
+      chip(t("chip_count"), String(room.count));
+      if (room.budget) chip(t("chip_budget"), room.budget);
+      if (room.date) chip(t("chip_date"), room.date);
+      chip(t("chip_status"), room.drawn ? t("st_drawn") : t("st_reg"));
+      h.append(eb, ttl, f);
       if (room.note) { const n = document.createElement("p"); n.className = "muted"; n.textContent = room.note; n.style.whiteSpace = "pre-wrap"; h.append(n); }
     });
-    document.title = room.title + " · Тайный Санта Zhebe";
+    document.title = room.title + " · " + t("site");
   }
 
   // --- маршрутизация при загрузке ---
@@ -452,7 +482,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
   function fillRoomForms(room) {
     const sel = $("#l-name");
     sel.replaceChildren();
-    const o0 = document.createElement("option"); o0.value = ""; o0.textContent = room.names.length ? "Выберите себя из списка" : "Пока никого нет"; sel.append(o0);
+    const o0 = document.createElement("option"); o0.value = ""; o0.textContent = room.names.length ? t("pick_self") : t("nobody"); sel.append(o0);
     room.names.forEach((n) => { const o = document.createElement("option"); o.value = n; o.textContent = n; sel.append(o); });
     $("#joinClosed").hidden = !room.drawn;
     $("#f-join").querySelectorAll("input,textarea,button").forEach((el) => (el.disabled = room.drawn));
@@ -476,7 +506,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
       throw e;
     }
     S.room = d.room; renderRoomHead(d.room);
-    text($("#me-hello"), "Привет, " + d.me.name + "!");
+    text($("#me-hello"), t("hello", { n: d.me.name }));
     $("#w-wish").value = d.me.wish || "";
     msg($("#wishMsg"), "");
     $("#me-wait").hidden = d.room.drawn;
@@ -486,12 +516,12 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
     $("#leaveBtn").hidden = d.room.drawn;
     if (d.room.drawn && !d.hasPair) {
       $("#me-wait").hidden = false;
-      text($("#me-hello"), d.me.name + ", вас нет в этой жеребьёвке");
+      text($("#me-hello"), t("not_in", { n: d.me.name }));
     }
     if (d.receiver) {
       S.receiver = d.receiver;
       text($("#rv-name"), d.receiver.name);
-      text($("#rv-wish"), d.receiver.wish || "Подопечный пока не написал пожелание. Загляните позже.");
+      text($("#rv-wish"), d.receiver.wish || t("no_wish"));
       hideGift();
     }
     show("me");
@@ -516,25 +546,30 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
     text($("#ad-code"), d.room.code);
     const link = location.origin + location.pathname + "?r=" + d.room.code;
     $("#ad-link").value = link;
-    const lines = ["🎅 Zhebe Logistics играет в Тайного Санту: «" + d.room.title + "»!"];
-    if (d.room.budget) lines.push("Бюджет: " + d.room.budget);
-    if (d.room.date) lines.push("Обмен подарками: " + d.room.date);
-    lines.push("", "1. Откройте ссылку: " + link, "2. Нажмите «Я новенький», впишите имя, пожелание и придумайте PIN.", "3. После жеребьёвки зайдите снова и узнайте, кому дарите.", "", "Код игры: " + d.room.code, "Не рассказывайте никому, кто вам выпал 🤫");
-    $("#ad-invite").value = lines.join("\n");
+    const block = (lg) => {
+      const L = [tl(lg, "inv_title", { t: d.room.title })];
+      if (d.room.budget) L.push(tl(lg, "inv_budget", { b: d.room.budget }));
+      if (d.room.date) L.push(tl(lg, "inv_date", { d: d.room.date }));
+      L.push("", tl(lg, "inv_1", { l: link }), tl(lg, "inv_2"), tl(lg, "inv_3"), "", tl(lg, "inv_code", { c: d.room.code }), tl(lg, "inv_secret"));
+      return L.join("\n");
+    };
+    const order = LANG === "kk" ? ["kk", "ru"] : ["ru", "kk"];
+    $("#ad-invite").value = block(order[0]) + "\n\n— — —\n\n" + block(order[1]);
+    
     text($("#ad-count"), String(d.people.length));
     const ul = $("#ad-people"); ul.replaceChildren();
     d.people.forEach((p) => {
       const li = document.createElement("li");
       const av = document.createElement("span"); av.className = "avatar"; av.textContent = p.name.trim()[0]?.toUpperCase() || "?";
       const n = document.createElement("div"); n.className = "n"; n.textContent = p.name;
-      const w = document.createElement("div"); w.className = "w"; w.textContent = p.hasWish ? "пожелание написано" : "без пожелания"; n.append(w);
+      const w = document.createElement("div"); w.className = "w"; w.textContent = p.hasWish ? t("has_wish_s") : t("no_wish_s"); n.append(w);
       li.append(av, n);
       if (!d.drawnAt) {
-        const rm = document.createElement("button"); rm.type = "button"; rm.className = "ghost"; rm.textContent = "Убрать";
-        rm.setAttribute("aria-label", "Убрать " + p.name);
+        const rm = document.createElement("button"); rm.type = "button"; rm.className = "ghost"; rm.textContent = t("remove");
+        rm.setAttribute("aria-label", t("remove_aria", { n: p.name }));
         let armed = false;
         rm.onclick = () => busy(rm, async () => {
-          if (!armed) { armed = true; rm.textContent = "Точно?"; setTimeout(() => { armed = false; rm.textContent = "Убрать"; }, 3000); return; }
+          if (!armed) { armed = true; rm.textContent = t("sure"); setTimeout(() => { armed = false; rm.textContent = t("remove"); }, 3000); return; }
           await api("/room/" + S.code + "/admin/remove", { method: "POST", token, body: { id: p.id } });
           openAdmin();
         });
@@ -544,7 +579,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
     });
     $("#ad-empty").hidden = d.people.length > 0;
     const who = $("#rp-who"); who.replaceChildren();
-    const w0 = document.createElement("option"); w0.value = ""; w0.textContent = "Выберите участника"; who.append(w0);
+    const w0 = document.createElement("option"); w0.value = ""; w0.textContent = t("pick_member"); who.append(w0);
     d.people.forEach((p) => { const o = document.createElement("option"); o.value = p.id; o.textContent = p.name; who.append(o); });
     $("#f-reset").hidden = d.people.length === 0;
     $("#f-pairs").hidden = !d.drawnAt;
@@ -553,8 +588,8 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
     $("#drawBtn").hidden = drawn; $("#drawConfirm").hidden = true;
     $("#undrawBtn").hidden = !drawn; $("#undrawConfirm").hidden = true;
     text($("#ad-drawnNote"), drawn
-      ? "Жеребьёвка проведена " + new Date(d.drawnAt).toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) + ". Участники могут открыть свои подарки."
-      : d.people.length < 3 ? "Для жеребьёвки нужно минимум 3 человека." : "Когда все зарегистрируются, проведите жеребьёвку.");
+      ? t("drawn_at", { d: new Date(d.drawnAt).toLocaleString(LANG === "kk" ? "kk-KZ" : "ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) })
+      : d.people.length < 3 ? t("need3") : t("when_all"));
     $("#drawBtn").disabled = d.people.length < 3;
     msg($("#drawErr"), "");
     $("#s-title").value = d.room.title; $("#s-budget").value = d.room.budget || "";
@@ -590,8 +625,8 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
   $("#f-join").onsubmit = (e) => {
     e.preventDefault(); msg($("#joinErr"), "");
     const pin = $("#j-pin").value, pin2 = $("#j-pin2").value;
-    if (!/^\d{4,8}$/.test(pin)) return msg($("#joinErr"), "PIN должен состоять из 4–8 цифр.");
-    if (pin !== pin2) return msg($("#joinErr"), "PIN не совпадает. Введите одинаковый PIN в оба поля.");
+    if (!/^\d{4,8}$/.test(pin)) return msg($("#joinErr"), t("pin_digits"));
+    if (pin !== pin2) return msg($("#joinErr"), t("pin_mismatch"));
     busy(e.submitter, async () => {
       try {
         const d = await api("/room/" + S.code + "/join", { method: "POST", body: { name: $("#j-name").value, wish: $("#j-wish").value, pin } });
@@ -612,7 +647,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
   }
   $("#f-login").onsubmit = (e) => {
     e.preventDefault(); msg($("#loginErr"), "");
-    if (!$("#l-name").value) return msg($("#loginErr"), "Выберите своё имя из списка.");
+    if (!$("#l-name").value) return msg($("#loginErr"), t("pick_name"));
     busy(e.submitter, async () => { if (await pinLogin($("#l-name").value, $("#l-pin").value, $("#loginErr"))) $("#l-pin").value = ""; });
   };
   $("#me-pin").onsubmit = (e) => {
@@ -634,7 +669,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
     busy(e.submitter, async () => {
       try {
         await api("/room/" + S.code + "/wish", { method: "POST", token: sess.token, body: { wish: $("#w-wish").value } });
-        msg($("#wishMsg"), "Сохранено. Ваш Санта увидит новое пожелание.", "ok");
+        msg($("#wishMsg"), t("wish_saved"), "ok");
       } catch (err) { msg($("#wishMsg"), err.message); }
     });
   };
@@ -682,7 +717,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
     busy(e.submitter, async () => {
       try {
         await api("/room/" + S.code + "/admin/settings", { method: "POST", token: ls.get(admKey()), body: { title: $("#s-title").value, budget: $("#s-budget").value, date: $("#s-date").value, note: $("#s-note").value } });
-        await openAdmin(); msg($("#setMsg"), "Сохранено", "ok");
+        await openAdmin(); msg($("#setMsg"), t("saved"), "ok");
       } catch (err) { msg($("#setMsg"), err.message); }
     });
   };
@@ -701,7 +736,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
         d.pairs.sort((a, b) => a.giver.localeCompare(b.giver, "ru")).forEach((x) => {
           const li = document.createElement("li");
           const g = document.createElement("span"); g.className = "g"; g.textContent = x.giver;
-          const a = document.createElement("span"); a.className = "arrow"; a.textContent = "→ дарит →";
+          const a = document.createElement("span"); a.className = "arrow"; a.textContent = t("gives");
           const r = document.createElement("span"); r.className = "r"; r.textContent = x.receiver;
           li.append(g, a, r); ul.append(li);
         });
@@ -711,19 +746,35 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
   };
   $("#f-reset").onsubmit = (e) => {
     e.preventDefault(); msg($("#resetMsg"), "");
-    if (!$("#rp-who").value) return msg($("#resetMsg"), "Выберите участника.");
-    if (!/^\d{4,8}$/.test($("#rp-pin").value)) return msg($("#resetMsg"), "PIN должен состоять из 4–8 цифр.");
+    if (!$("#rp-who").value) return msg($("#resetMsg"), t("pick_member2"));
+    if (!/^\d{4,8}$/.test($("#rp-pin").value)) return msg($("#resetMsg"), t("pin_digits"));
     busy(e.submitter, async () => {
       try {
         const name = $("#rp-who").selectedOptions[0].textContent, pin = $("#rp-pin").value;
         await api("/room/" + S.code + "/admin/resetpin", { method: "POST", token: ls.get(admKey()), body: { id: $("#rp-who").value, pin, password: $("#rp-pass").value } });
         $("#rp-pin").value = ""; $("#rp-pass").value = "";
-        msg($("#resetMsg"), "Готово. Новый PIN для " + name + ": " + pin + ". Сообщите его лично.", "ok");
+        msg($("#resetMsg"), t("reset_ok", { n: name, p: pin }), "ok");
       } catch (err) { msg($("#resetMsg"), err.message); }
     });
   };
   $("#adminToRoom").onclick = () => openRoom(S.code);
   $("#adminLogout").onclick = () => { ls.del(admKey()); openRoom(S.code); };
+
+  // --- переключение языка ---
+  function currentView() { return views.find((v) => !$("#v-" + v).hidden); }
+  document.querySelectorAll(".lang button").forEach((b) => (b.onclick = () => {
+    if (b.dataset.lang === LANG) return;
+    LANG = b.dataset.lang;
+    try { localStorage.setItem("santa:lang", LANG); } catch {}
+    applyStatic();
+    document.querySelectorAll(".msg").forEach((el) => { if (el.id !== "joinClosed") el.hidden = true; });
+    const v = currentView();
+    if (S.room) renderRoomHead(S.room);
+    if (v === "room") { const tab = $("#tab-login").getAttribute("aria-selected") === "true" ? "login" : "join"; fillRoomForms(S.room); selectTab(tab); }
+    else if (v === "me") openMe().catch(() => {});
+    else if (v === "admin") openAdmin(!$("#ad-created").hidden).catch(() => {});
+  }));
+  applyStatic();
 
   // --- старт ---
   const q = new URLSearchParams(location.search);
