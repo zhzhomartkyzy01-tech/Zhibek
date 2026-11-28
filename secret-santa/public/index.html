@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Тайный Санта</title>
 <meta name="description" content="Жеребьёвка Тайного Санты для друзей, семьи и коллег.">
-<meta name="theme-color" content="#9b0101">
+<meta name="theme-color" content="#03a9e2">
 <link rel="icon" href="santa.jpg" type="image/jpeg">
 <meta property="og:image" content="santa.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&family=Nunito:wght@500;600;700;800;900&display=swap">
 <style>
-/* Layout: postcard column on a Santa-coat red ground; white paper cards; script headings; black "sunglasses" chips */
+/* Layout: postcard column on an Ocean Love sky-blue winter ground with snow drifts; white cards; yellow accents */
 :root{
-  --bg:#9b0101; --bg-2:#7c0000; --on-bg:#ffffff; --on-bg-muted:#ffd6cf;
-  --paper:#fffaf6; --paper-2:#f8ece6; --ink:#241718; --muted:#7c6260; --line:#ecd8d1;
-  --red:#d3211b; --red-h:#b31812; --coral:#ff4228; --gold:#ffc83d; --gold-h:#ffd66b;
+  --bg:#03a9e2; --bg-2:#0277b6; --on-bg:#ffffff; --on-bg-muted:#e4f7ff;
+  --paper:#ffffff; --paper-2:#eef8fd; --ink:#0c2b3d; --muted:#5a7486; --line:#d3e9f4;
+  --red:#0288c7; --red-h:#016797; --coral:#f9ca00; --gold:#f9ca00; --gold-h:#ffd83d;
   --ok:#1b7a45; --err:#b3261e;
   --script:"Lobster","Georgia",serif;
   --body:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -25,9 +25,12 @@
 *{box-sizing:border-box}
 html,body{min-height:100%}
 body{margin:0;background:var(--bg);color:var(--on-bg);font:16px/1.55 var(--body);
-  background-image:radial-gradient(900px 520px at 50% -8%,#c0140f 0%,transparent 62%),radial-gradient(700px 500px at 50% 110%,var(--bg-2) 0%,transparent 70%);
+  position:relative;min-height:100vh;
+  background-image:radial-gradient(900px 520px at 50% -8%,#6fd8fb 0%,transparent 62%),radial-gradient(600px 400px at 100% 30%,rgba(249,202,0,.22) 0%,transparent 70%),linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
-  padding-block:calc(env(safe-area-inset-top,0px) + 20px) calc(env(safe-area-inset-bottom,0px) + 40px)}
+  padding-block:calc(env(safe-area-inset-top,0px) + 20px) calc(env(safe-area-inset-bottom,0px) + 120px)}
+body::after{content:"";position:absolute;left:0;right:0;bottom:0;height:110px;pointer-events:none;z-index:0;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 110' preserveAspectRatio='none'%3E%3Cpath d='M0 60 C150 20 250 70 400 45 C560 18 650 75 820 50 C980 26 1080 70 1200 40 L1200 110 L0 110Z' fill='%23ffffff' fill-opacity='.55'/%3E%3Cpath d='M0 80 C120 55 260 95 420 72 C600 48 700 98 880 76 C1020 60 1120 90 1200 70 L1200 110 L0 110Z' fill='%23ffffff'/%3E%3C/svg%3E") bottom/100% 100% no-repeat}
 #snow{position:fixed;inset:0;pointer-events:none;z-index:0}
 main{position:relative;z-index:1;max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
 [hidden]{display:none!important}
@@ -38,22 +41,23 @@ h2{font-size:28px}
 p{margin:0}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--on-bg);min-width:0}
-.brand .face{width:46px;height:46px;border-radius:50%;object-fit:cover;object-position:50% 40%;border:3px solid var(--on-bg);flex:none;box-shadow:0 4px 14px rgba(0,0,0,.25)}
-.brand .word{font-family:var(--script);font-size:24px;line-height:1;white-space:nowrap}
-.lang{display:flex;background:rgba(0,0,0,.22);border-radius:999px;padding:3px;gap:2px;flex:none}
+.brand .plate{flex:none;background:#fff;border-radius:14px;padding:7px 10px;display:flex;box-shadow:0 4px 14px rgba(0,40,80,.22)}
+.brand .plate img{height:34px;width:auto;display:block}
+.brand .word{font-family:var(--script);font-size:22px;line-height:1.05;text-shadow:0 2px 8px rgba(0,50,90,.25)}
+.lang{display:flex;background:rgba(0,40,80,.22);border-radius:999px;padding:3px;gap:2px;flex:none}
 .lang button{background:transparent;color:var(--on-bg-muted);padding:7px 12px;border-radius:999px;font-size:13px;font-weight:800;letter-spacing:.06em}
 .lang button:hover{background:rgba(255,255,255,.12);color:var(--on-bg)}
 .lang button[aria-pressed="true"]{background:var(--on-bg);color:var(--bg)}
 .hero{display:flex;flex-direction:column;gap:16px;align-items:center;text-align:center}
-.postcard{width:min(100%,340px);aspect-ratio:1;max-width:100%;border-radius:22px;border:7px solid var(--on-bg);box-shadow:0 18px 40px rgba(60,0,0,.45);transform:rotate(-2.5deg);overflow:hidden;background:var(--bg-2)}
+.postcard{width:min(100%,320px);aspect-ratio:1;max-width:100%;border-radius:22px;border:7px solid var(--on-bg);box-shadow:0 18px 40px rgba(0,45,80,.45);transform:rotate(-2.5deg);overflow:hidden;background:var(--bg-2)}
 .postcard img{width:100%;height:100%;object-fit:cover;display:block}
 .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--red)}
-.roomhead .eyebrow{color:var(--gold)}
+.roomhead .eyebrow{color:var(--gold);text-shadow:0 1px 4px rgba(0,40,80,.3)}
 .lead{color:var(--on-bg-muted);font-size:17px}
 .muted{color:var(--muted)}
 .roomhead .muted,.top~footer,footer.onbg{color:var(--on-bg-muted)}
 .small{font-size:14px}
-.card{background:var(--paper);color:var(--ink);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:16px;box-shadow:0 10px 30px rgba(60,0,0,.28)}
+.card{background:var(--paper);color:var(--ink);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:16px;box-shadow:0 10px 30px rgba(0,45,80,.28)}
 .card h2{color:var(--red)}
 .tag{position:relative}
 .tag::before{content:"";position:absolute;top:-11px;left:50%;width:44px;height:22px;margin-left:-22px;border-radius:0 0 22px 22px;background:var(--gold);box-shadow:inset 0 -3px 0 rgba(0,0,0,.08)}
@@ -61,7 +65,7 @@ label{display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:14px}
 label .hint{font-weight:500;color:var(--muted);font-size:13px}
 input,textarea,select{font:inherit;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:14px;padding:11px 14px;width:100%}
 textarea{min-height:92px;resize:vertical}
-input:focus,textarea:focus,select:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 4px rgba(211,33,27,.15)}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 4px rgba(2,136,199,.18)}
 input.code{font-weight:900;font-size:26px;letter-spacing:.3em;text-transform:uppercase;text-align:center;padding:14px}
 input.pin{font-size:22px;font-weight:800;letter-spacing:.4em;text-align:center}
 .row{display:flex;gap:12px;flex-wrap:wrap}
@@ -123,10 +127,10 @@ footer{text-align:center;font-size:14px;color:var(--on-bg-muted)}
 .gift:active{box-shadow:none}
 .gift .box{position:absolute;left:15px;right:15px;bottom:0;height:105px;background:var(--coral);border-radius:8px}
 .gift .lid{position:absolute;left:5px;right:5px;top:22px;height:34px;background:var(--red);border-radius:8px;transition:transform .6s cubic-bezier(.3,1.6,.5,1);transform-origin:20% 100%}
-.gift .rib-v{position:absolute;left:50%;width:22px;margin-left:-11px;top:22px;bottom:0;background:var(--ink)}
+.gift .rib-v{position:absolute;left:50%;width:22px;margin-left:-11px;top:22px;bottom:0;background:var(--red)}
 .gift .lid .rib-v{top:0}
 .gift .bow{position:absolute;top:-22px;left:50%;width:70px;margin-left:-35px;height:30px}
-.gift .bow::before,.gift .bow::after{content:"";position:absolute;bottom:0;width:32px;height:26px;border:7px solid var(--ink);border-radius:50% 50% 10% 50%}
+.gift .bow::before,.gift .bow::after{content:"";position:absolute;bottom:0;width:32px;height:26px;border:7px solid var(--red);border-radius:50% 50% 10% 50%}
 .gift .bow::before{left:0;transform:rotate(-12deg)}
 .gift .bow::after{right:0;transform:scaleX(-1) rotate(-12deg)}
 .gift:not(.open){animation:wiggle 2.6s ease-in-out infinite}
@@ -144,7 +148,7 @@ footer{text-align:center;font-size:14px;color:var(--on-bg-muted)}
 <main>
   <header class="top">
     <a class="brand" href="./" id="homeLink" data-i18n-aria="brand_aria" aria-label="На главную Тайного Санты">
-      <img class="face" src="santa.jpg" alt="" width="46" height="46">
+      <span class="plate"><img src="ocean-love-logo.png" alt="Ocean Love" width="88" height="34"></span>
       <span class="word" data-i18n="brand_word">Тайный Санта</span>
     </a>
     <div class="lang" role="group" data-i18n-aria="lang_aria" aria-label="Язык">
@@ -822,16 +826,21 @@ footer{text-align:center;font-size:14px;color:var(--on-bg-muted)}
       w = cv.width = innerWidth * devicePixelRatio; h = cv.height = innerHeight * devicePixelRatio;
       cv.style.width = innerWidth + "px"; cv.style.height = innerHeight + "px";
       const n = Math.min(90, Math.round(innerWidth / 12));
-      flakes = Array.from({ length: n }, () => ({ x: Math.random() * w, y: Math.random() * h, r: (Math.random() * 1.8 + .6) * devicePixelRatio, s: Math.random() * .5 + .25, d: Math.random() * Math.PI * 2 }));
+      flakes = Array.from({ length: n }, () => ({ x: Math.random() * w, y: Math.random() * h, r: (Math.random() * 2.4 + .6) * devicePixelRatio, s: Math.random() * .5 + .25, d: Math.random() * Math.PI * 2 }));
     };
     resize(); addEventListener("resize", resize);
     const tick = () => {
       ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = "rgba(255,255,255,.7)";
+      ctx.fillStyle = "rgba(255,255,255,.85)"; ctx.strokeStyle = "rgba(255,255,255,.8)"; ctx.lineCap = "round";
       for (const f of flakes) {
         f.y += f.s * devicePixelRatio; f.d += .01; f.x += Math.sin(f.d) * .3 * devicePixelRatio;
-        if (f.y > h) { f.y = -5; f.x = Math.random() * w; }
-        ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 7); ctx.fill();
+        if (f.y > h) { f.y = -10; f.x = Math.random() * w; }
+        if (f.r > 2.1 * devicePixelRatio) {
+          const L = f.r * 2.6; ctx.lineWidth = Math.max(1, f.r * .35);
+          ctx.save(); ctx.translate(f.x, f.y); ctx.rotate(f.d);
+          for (let k = 0; k < 3; k++) { ctx.rotate(Math.PI / 3); ctx.beginPath(); ctx.moveTo(-L, 0); ctx.lineTo(L, 0); ctx.stroke(); }
+          ctx.restore();
+        } else { ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 7); ctx.fill(); }
       }
       requestAnimationFrame(tick);
     };

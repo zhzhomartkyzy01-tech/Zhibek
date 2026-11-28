@@ -1,4 +1,4 @@
-# Отдельный сайт «Тайный Санта» (красный дизайн). В Netlify укажите Base directory: secret-santa
+# Отдельный сайт «Тайный Санта» (Ocean Love). В Netlify укажите Base directory: secret-santa
 [build]
   publish = "public"
 
