@@ -28,7 +28,7 @@ body{margin:0;background:var(--bg);color:var(--on-bg);font:16px/1.55 var(--body)
   position:relative;min-height:100vh;
   background-image:radial-gradient(900px 520px at 50% -8%,#6fd8fb 0%,transparent 62%),radial-gradient(600px 400px at 100% 30%,rgba(249,202,0,.22) 0%,transparent 70%),linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
-  padding-block:calc(env(safe-area-inset-top,0px) + 20px) calc(env(safe-area-inset-bottom,0px) + 120px)}
+  padding-block:calc(env(safe-area-inset-top,0px) + 52px) calc(env(safe-area-inset-bottom,0px) + 120px)}
 body::after{content:"";position:absolute;left:0;right:0;bottom:0;height:110px;pointer-events:none;z-index:0;
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 110' preserveAspectRatio='none'%3E%3Cpath d='M0 60 C150 20 250 70 400 45 C560 18 650 75 820 50 C980 26 1080 70 1200 40 L1200 110 L0 110Z' fill='%23ffffff' fill-opacity='.55'/%3E%3Cpath d='M0 80 C120 55 260 95 420 72 C600 48 700 98 880 76 C1020 60 1120 90 1200 70 L1200 110 L0 110Z' fill='%23ffffff'/%3E%3C/svg%3E") bottom/100% 100% no-repeat}
 #snow{position:fixed;inset:0;pointer-events:none;z-index:0}
@@ -41,7 +41,12 @@ h2{font-size:28px}
 p{margin:0}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--on-bg);min-width:0}
-.brand .plate{flex:none;background:#fff;border-radius:14px;padding:7px 10px;display:flex;box-shadow:0 4px 14px rgba(0,40,80,.22)}
+.brand .plate{position:relative;flex:none;background:#fff;border-radius:14px;padding:7px 10px;display:flex;box-shadow:0 4px 14px rgba(0,40,80,.22)}
+.brand .hat{position:absolute;width:42px;height:auto;left:3px;top:-17px;transform:rotate(-14deg);filter:drop-shadow(0 2px 3px rgba(0,40,80,.3));pointer-events:none}
+.garland{position:absolute;left:0;right:0;top:env(safe-area-inset-top,0px);height:44px;z-index:2;pointer-events:none;overflow:hidden}
+.garland svg{display:block;width:100%;height:44px}
+.garland .bulb{animation:twinkle 2.4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.35}}
 .brand .plate img{height:34px;width:auto;display:block}
 .brand .word{font-family:var(--script);font-size:22px;line-height:1.05;text-shadow:0 2px 8px rgba(0,50,90,.25)}
 .lang{display:flex;background:rgba(0,40,80,.22);border-radius:999px;padding:3px;gap:2px;flex:none}
@@ -145,10 +150,11 @@ footer{text-align:center;font-size:14px;color:var(--on-bg-muted)}
 </head>
 <body>
 <canvas id="snow" aria-hidden="true"></canvas>
+<div class="garland" id="garland" aria-hidden="true"></div>
 <main>
   <header class="top">
     <a class="brand" href="./" id="homeLink" data-i18n-aria="brand_aria" aria-label="На главную Тайного Санты">
-      <span class="plate"><img src="ocean-love-logo.png" alt="Ocean Love" width="88" height="34"></span>
+      <span class="plate"><svg class="hat" viewBox="0 0 64 56" aria-hidden="true"><path d="M8 42 C14 20 30 6 48 8 C56 9 60 16 58 24 C54 20 48 20 46 26 C44 32 46 38 50 42 Z" fill="#e0262a"/><path d="M14 38 C24 28 36 22 46 26 C44 32 46 38 50 42 Z" fill="#b81c20" opacity=".35"/><rect x="2" y="38" width="54" height="13" rx="6.5" fill="#fff"/><rect x="2" y="38" width="54" height="13" rx="6.5" fill="none" stroke="#dfeef6" stroke-width="1.5"/><circle cx="58" cy="26" r="6" fill="#fff" stroke="#dfeef6" stroke-width="1.5"/></svg><img src="ocean-love-logo.png" alt="Ocean Love" width="88" height="34"></span>
       <span class="word" data-i18n="brand_word">Тайный Санта</span>
     </a>
     <div class="lang" role="group" data-i18n-aria="lang_aria" aria-label="Язык">
@@ -817,6 +823,21 @@ footer{text-align:center;font-size:14px;color:var(--on-bg-muted)}
     if (last) $("#codeInput").value = last;
     show("home");
   }
+
+  // --- гирлянда ---
+  function drawGarland() {
+    const g = $("#garland"), W = Math.max(320, g.clientWidth || innerWidth), step = 42, n = Math.max(6, Math.round(W / step)), seg = W / n;
+    const colors = ["#f9ca00", "#e0262a", "#ffffff", "#2fbf71", "#7fe3ff"];
+    let path = "M0 6", bulbs = "";
+    for (let i = 0; i < n; i++) {
+      const x0 = i * seg, x1 = x0 + seg, mx = x0 + seg / 2;
+      path += ` Q${mx.toFixed(1)} 30 ${x1.toFixed(1)} 6`;
+      const c = colors[i % colors.length], dl = ((i * 0.37) % 2.4).toFixed(2);
+      bulbs += `<g class="bulb" style="animation-delay:-${dl}s" transform="translate(${mx.toFixed(1)} 18)"><rect x="-3.5" y="-1" width="7" height="6" rx="1.5" fill="#24465c"/><ellipse cx="0" cy="12" rx="6" ry="8.5" fill="${c}"/><ellipse cx="-2" cy="9" rx="1.6" ry="3" fill="#fff" opacity=".55"/></g>`;
+    }
+    g.innerHTML = `<svg viewBox="0 0 ${W.toFixed(0)} 44" preserveAspectRatio="none"><path d="${path}" fill="none" stroke="#24465c" stroke-width="2"/>${bulbs}</svg>`;
+  }
+  drawGarland(); addEventListener("resize", drawGarland);
 
   // --- снег ---
   const cv = $("#snow"), ctx = cv.getContext("2d");
